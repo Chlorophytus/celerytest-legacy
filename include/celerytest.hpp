@@ -1,8 +1,11 @@
 #pragma once
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <lua5.2/lua.hpp>
 
 // RATIONALE: In case version retrieval is needed
-#include "sdl_template_cfg.hpp"
+#include "celerytest_cfg.hpp"
 
 // NOTE: Assertions can be converted into exceptions, but assertions are simple.
 #include <cassert>
