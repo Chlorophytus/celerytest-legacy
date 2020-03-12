@@ -2,12 +2,13 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <lua5.2/lua.hpp>
+#include <lua.hpp>
 
 // RATIONALE: In case version retrieval is needed
 #include "celerytest_cfg.hpp"
 
-// NOTE: Assertions can be converted into exceptions, but assertions are simple.
+// NOTE: Assertions can be converted into exceptions, but assertions are
+// simple.
 #include <cassert>
 
 // RATIONALE: Needed for printf, or you could use iostream instead

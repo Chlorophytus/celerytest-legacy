@@ -6,9 +6,9 @@ int main(int argc, char **argv) {
   std::printf("celerytest %s\n", celerytest_VSTRING_FULL);
 
   // If you don't specify the Width/Height then I will specify it for you.
-  auto w = U16((argc == 3) ? std::atoi(argv[1]) : 0);
-  auto h = U16((argc == 3) ? std::atoi(argv[2]) : 0);
-  auto fullscreen = bool((argc == 3) ? std::atoi(argv[3]) > 0 : false);
+  auto w = U16((argc == 4) ? std::atoi(argv[1]) : 0);
+  auto h = U16((argc == 4) ? std::atoi(argv[2]) : 0);
+  auto fullscreen = bool((argc == 4) ? std::atoi(argv[3]) != 0 : false);
 
   if (w == 0) {
     w = 640;
