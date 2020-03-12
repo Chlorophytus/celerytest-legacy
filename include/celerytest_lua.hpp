@@ -5,6 +5,7 @@ namespace celerytest {
 struct lua {
   lua_State *L;
   lua();
+  void load(const char *);
   ~lua();
 };
 } // namespace celerytest

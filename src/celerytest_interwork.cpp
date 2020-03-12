@@ -1,8 +1,9 @@
 #include "../include/celerytest_interwork.hpp"
+#include "../include/celerytest_log.hpp"
 using namespace celerytest;
 
 void celerytest::check_sdl_error() {
-  std::fprintf(stderr, "SDL error: %s\n", SDL_GetError());
+  log(severity::error, {"SDL2 error: ", reinterpret_cast<const char *>(SDL_GetError())});
 }
 
 interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
@@ -32,11 +33,12 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   glewExperimental = GL_TRUE;
   auto e = glewInit();
   if (e != GLEW_OK) {
-    std::fprintf(stderr, "GLEW error: %s\n", glewGetErrorString(e));
+    log(severity::error, {"GLEW error: ", reinterpret_cast<const char *>(glewGetErrorString(e))});
   }
   assert(e == GLEW_OK);
 
   lua_ctx = std::make_unique<lua>();
+  lua_ctx->load("foo");
 }
 
 bool interwork::tick() {

@@ -1,10 +1,11 @@
 #include "../include/celerytest.hpp"
 #include "../include/celerytest_interwork.hpp"
+#include "../include/celerytest_log.hpp"
 #include "../include/celerytest_lua.hpp"
 
 int main(int argc, char **argv) {
-  std::printf("celerytest %s\n", celerytest_VSTRING_FULL);
-
+  celerytest::log(celerytest::severity::info,
+                  {"celerytest ", celerytest_VSTRING_FULL});
   // If you don't specify the Width/Height then I will specify it for you.
   auto w = U16((argc == 4) ? std::atoi(argv[1]) : 0);
   auto h = U16((argc == 4) ? std::atoi(argv[2]) : 0);
@@ -16,18 +17,19 @@ int main(int argc, char **argv) {
   if (h == 0) {
     h = 480;
   }
-
-  std::printf("using resolution %hux%hu\n", w, h);
+  celerytest::log(
+      celerytest::severity::info,
+      {"using resolution ", std::to_string(w), "x", std::to_string(h)});
 
   if (fullscreen) {
-    std::printf("fullscreen = true\n");
+    celerytest::log(celerytest::severity::info, {"fullscreen = true"});
   } else {
-    std::printf("fullscreen = false\n");
+    celerytest::log(celerytest::severity::info, {"fullscreen = false"});
   }
 
   // SDL will return a non-zero value for failure in initialization.
   auto init = SDL_Init(SDL_INIT_EVERYTHING);
-  if(init != 0) {
+  if (init != 0) {
     celerytest::check_sdl_error();
   }
   assert(init == 0);
