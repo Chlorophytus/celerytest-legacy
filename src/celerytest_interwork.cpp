@@ -3,7 +3,7 @@
 using namespace celerytest;
 
 void celerytest::check_sdl_error() {
-  log(severity::error, {"SDL2 error: ", reinterpret_cast<const char *>(SDL_GetError())});
+  log(severity::error, {"SDL2 error: ", SDL_GetError()});
 }
 
 interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
@@ -38,7 +38,7 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   assert(e == GLEW_OK);
 
   lua_ctx = std::make_unique<lua>();
-  lua_ctx->load("foo");
+  lua_ctx->load("init.lua");
 }
 
 bool interwork::tick() {

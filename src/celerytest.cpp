@@ -2,6 +2,7 @@
 #include "../include/celerytest_interwork.hpp"
 #include "../include/celerytest_log.hpp"
 #include "../include/celerytest_lua.hpp"
+#include "../include/celerytest_sim.hpp"
 
 int main(int argc, char **argv) {
   celerytest::log(celerytest::severity::info,
@@ -33,11 +34,25 @@ int main(int argc, char **argv) {
     celerytest::check_sdl_error();
   }
   assert(init == 0);
+  celerytest::sim_init();
   auto inter = std::make_unique<celerytest::interwork>(w, h, fullscreen);
+  #if 0
+  auto e = 1;
+  for (auto i = 0; i < 2 << 24; i++) {
+    if (e == i) {
+      celerytest::log(celerytest::severity::info, {"object creation timing ",
+                      std::to_string(e), "..."});
+      e <<= 1;
+    }
 
+    celerytest::sim_create_hint(1, i);
+  }
+  celerytest::log(celerytest::severity::info, {"object creation timing done"});
+  #endif
   while (inter->tick())
     SDL_Delay(10);
 
+  celerytest::sim_deinit();
   // Quit SDL lastly, **LASTLY**.
   SDL_Quit();
   return 0;

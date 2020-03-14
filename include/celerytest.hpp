@@ -11,6 +11,8 @@
 // simple.
 #include <cassert>
 
+#include <algorithm>
+#include <bitset>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
@@ -19,6 +21,9 @@
 #include <initializer_list>
 #include <memory>
 #include <string_view>
+
+// NOTE: Unordered maps are really fast.
+#include <unordered_map>
 
 using U8 = std::uint8_t;
 using U16 = std::uint16_t;
