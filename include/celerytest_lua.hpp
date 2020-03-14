@@ -15,7 +15,6 @@ struct lua {
 
   // Sim
   static int sim_create(lua_State *);
-  static int sim_create_hint(lua_State *);
   static int sim_delete(lua_State *);
 };
 } // namespace celerytest

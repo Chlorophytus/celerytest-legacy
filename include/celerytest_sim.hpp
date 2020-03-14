@@ -1,5 +1,6 @@
 #pragma once
 #include "celerytest.hpp"
+#include "celerytest_shader.hpp"
 
 namespace celerytest {
 enum class sim_types : U8 { object, shaderobject, shaderlist };
@@ -8,9 +9,12 @@ struct sim_object {
 };
 struct sim_shaderobject : sim_object {
   virtual const sim_types get_type() const { return sim_types::shaderobject; }
+  std::unique_ptr<celerytest::shader> primary{nullptr};
 };
 struct sim_shaderlist : sim_object {
   virtual const sim_types get_type() const { return sim_types::shaderlist; }
+  std::unique_ptr<std::forward_list<U32>> primary{nullptr};
+  std::unique_ptr<celerytest::shader_chain> secondary{nullptr};
 };
 using sim_keys_t = std::bitset<UINT32_MAX>;
 using sim_vals_t = std::unordered_map<U32, sim_object *>;

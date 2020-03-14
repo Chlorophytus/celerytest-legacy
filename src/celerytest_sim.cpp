@@ -27,7 +27,7 @@ U32 celerytest::sim_create(int Ltype) {
   return sim_create_hint(Ltype, 0);
 }
 
-sim_object *sim_reference(U32 where) {
+sim_object *celerytest::sim_reference(U32 where) {
   if (sim_keys->test(where)) {
     return sim_vals->at(where);
   }
@@ -50,13 +50,13 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
     ;
   (*sim_keys)[where] = true;
   switch (Ltype) {
-  case 0:
+  case 1:
     sim_vals->try_emplace(where, new sim_object());
     return where;
-  case 1:
+  case 2:
     sim_vals->try_emplace(where, new sim_shaderobject());
     return where;
-  case 2:
+  case 3:
     sim_vals->try_emplace(where, new sim_shaderlist());
     return where;
   default:

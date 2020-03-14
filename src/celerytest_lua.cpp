@@ -1,5 +1,6 @@
 #include "../include/celerytest_lua.hpp"
 #include "../include/celerytest_log.hpp"
+#include "../include/celerytest_shader.hpp"
 #include "../include/celerytest_sim.hpp"
 using namespace celerytest;
 
@@ -18,8 +19,6 @@ lua::lua() {
   lua_setglobal(L, "__con_error");
   lua_pushcfunction(L, sim_create);
   lua_setglobal(L, "__sim_create");
-  lua_pushcfunction(L, sim_create_hint);
-  lua_setglobal(L, "__sim_create_hint");
   lua_pushcfunction(L, sim_delete);
   lua_setglobal(L, "__sim_delete");
 }
@@ -76,14 +75,74 @@ int lua::con_error(lua_State *L) {
 
 int lua::sim_create(lua_State *L) {
   auto type = luaL_checkinteger(L, 1);
-  auto what = celerytest::sim_create(type);
-  lua_pushnumber(L, what);
-  return 1;
-}
-int lua::sim_create_hint(lua_State *L) {
-  auto type = luaL_checkinteger(L, 1);
-  auto hint = luaL_checkinteger(L, 2);
-  auto what = celerytest::sim_create_hint(type, hint);
+  auto what = U32(0);
+  if (lua_isnil(L, 2)) {
+    what = celerytest::sim_create(type);
+  } else {
+    auto hint = luaL_checkinteger(L, 2);
+    what = celerytest::sim_create_hint(type, hint);
+  }
+  if (lua_istable(L, 3)) {
+    switch (type) {
+    case 1: {
+      break;
+    }
+    case 2: {
+      lua_getfield(L, 3, "type");
+      auto shtype = luaL_checkinteger(L, -1);
+      lua_pop(L, 1);
+      lua_getfield(L, 3, "source");
+      auto source = luaL_checkstring(L, -1);
+      lua_pop(L, 1);
+      auto ref = celerytest::sim_reference(what);
+      assert(ref->get_type() == celerytest::sim_types::shaderobject);
+      switch (shtype) {
+      case 1: {
+        log(severity::info, {"creating compute shader..."});
+        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
+            std::make_unique<celerytest::shader>(
+                celerytest::shader::type::compute, source);
+        break;
+      }
+      case 2: {
+        log(severity::info, {"creating vertex shader..."});
+        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
+            std::make_unique<celerytest::shader>(
+                celerytest::shader::type::vertex, source);
+        break;
+      }
+      case 3: {
+        log(severity::info, {"creating fragment shader..."});
+        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
+            std::make_unique<celerytest::shader>(
+                celerytest::shader::type::fragment, source);
+        break;
+      }
+      case 4: {
+        log(severity::info, {"creating geometry shader..."});
+        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
+            std::make_unique<celerytest::shader>(
+                celerytest::shader::type::geometry, source);
+        break;
+      }
+      }
+      break;
+    }
+    case 3: {
+      // WIP
+      lua_getfield(L, 3, "type");
+      auto shtype = luaL_checkinteger(L, -1);
+      lua_pop(L, 1);
+      lua_getfield(L, 3, "source");
+      auto source = luaL_checkstring(L, -1);
+      lua_pop(L, 1);
+      auto ref = celerytest::sim_reference(what);
+      assert(ref->get_type() == celerytest::sim_types::shaderobject);
+      dynamic_cast<celerytest::sim_shaderlist *>
+      break;
+    }
+    }
+  }
   lua_pushnumber(L, what);
   return 1;
 }
