@@ -15,7 +15,7 @@ void env2d_uiobject::fill(U16 _w, U16 _h, U16 _x, U16 _y) {
   framebuffer = new U32[_w * _h];
   for (auto i = 0; i < _h; i++) {
     for (auto j = 0; j < _w; j++) {
-      framebuffer[i * _w + j] = 0xFFFFFFFF;
+      framebuffer[i * _w + j] = (((i / 16 + j / 16) % 2)  == 0) ? 0xFFFFFFFF : 0x00000000;
     }
   }
 }
