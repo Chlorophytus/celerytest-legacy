@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # You can change the name of the project
-project(celerytest VERSION 0.1.0.11)
+project(celerytest VERSION 0.1.0.12)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in include/${PROJECT_NAME}_cfg.hpp)
@@ -25,6 +25,8 @@ include_directories(
 # If you add classes you should add them here
 add_executable(${PROJECT_NAME}
     src/${PROJECT_NAME}_log.cpp
+    src/${PROJECT_NAME}_env2d.cpp
+    src/${PROJECT_NAME}_env3d.cpp
     src/${PROJECT_NAME}_interwork.cpp
     src/${PROJECT_NAME}_lua.cpp
     src/${PROJECT_NAME}_shader.cpp

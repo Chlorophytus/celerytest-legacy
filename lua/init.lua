@@ -24,10 +24,11 @@ celerytest = {
 local vert = celerytest.sim.create(celerytest.sim.types.shaderobject, nil, {
     type = celerytest.sim.shaders.vertex,
     source = [[#version 450 core
-layout(location = 10)in vec4 vert;
+layout(location = 10) in vec4 vert;
 out vec4 frag_paint;
 void main() {
-    frag_paint = vec4(vec3(1.0f), vert.w / 8.0f);// Pass d's z val for Z feedback, thus allowing us to discard.
+    // Pass d's z val for Z feedback, thus allowing us to discard.
+    frag_paint = vec4(vec3(1.0f), vert.w / 8.0f);
     gl_Position = vert;
 }
 ]]})
@@ -49,3 +50,4 @@ local prog = celerytest.sim.create(celerytest.sim.types.shaderlist, nil, {
     vert,
     frag
 })
+celerytest.con.info("PROG ObjID: " .. prog)
