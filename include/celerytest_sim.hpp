@@ -3,7 +3,12 @@
 #include "celerytest_shader.hpp"
 
 namespace celerytest {
-enum class sim_types : U8 { object, shaderobject, shaderlist };
+enum class sim_types : U8 {
+  object,
+  shaderobject,
+  shaderlist,
+  env2duiobject,
+};
 struct sim_object {
   virtual const sim_types get_type() const { return sim_types::object; }
 };

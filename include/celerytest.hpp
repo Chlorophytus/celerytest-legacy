@@ -20,6 +20,7 @@
 #include <initializer_list>
 #include <memory>
 #include <string_view>
+#include <vector>
 
 // NOTE: Unordered maps are really fast.
 #include <unordered_map>

@@ -2,6 +2,7 @@
 #include "celerytest.hpp"
 
 namespace celerytest {
+
 struct lua {
   lua_State *L;
   lua();
@@ -17,4 +18,5 @@ struct lua {
   static int sim_create(lua_State *);
   static int sim_delete(lua_State *);
 };
+std::vector<U32> *get_env2d();
 } // namespace celerytest

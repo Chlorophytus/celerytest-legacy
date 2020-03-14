@@ -1,7 +1,24 @@
 #include "../include/celerytest_log.hpp"
 using namespace celerytest;
 
+std::unique_ptr<std::forward_list<log_fun>> funs{nullptr};
+
+void celerytest::emplace_logger(log_fun fun) {
+  funs->emplace_front(fun);
+}
+
 void celerytest::log(severity s, std::forward_list<std::string_view> &&msg) {
+  if (!funs) {
+    funs = std::make_unique<std::forward_list<log_fun>>();
+    funs->emplace_front(&celerytest::log_printf);
+  }
+  for (auto &&fun : *funs) {
+    fun(s, std::forward_list<std::string_view>{msg});
+  }
+}
+
+void celerytest::log_printf(severity s,
+                            std::forward_list<std::string_view> &&msg) {
   auto msg_buffer = new char[4096]{0};
   auto millis = U16{0};
 

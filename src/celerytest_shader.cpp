@@ -57,6 +57,7 @@ void shader_chain::link() {
   for (auto &&shader_idx : shader_idxs) {
     glAttachShader(idx, shader_idx);
   }
+  glBindFragDataLocation(idx, 0, "color");
   log(severity::info, {"Linking program"});
   glLinkProgram(idx);
   auto link_status = GLint(0);
@@ -73,6 +74,9 @@ void shader_chain::link() {
     delete[] message;
   }
   assert(link_status == GL_TRUE);
+
+  glUseProgram(idx);
+  log(severity::info, {"Using this program"});
 }
 
 shader_chain::~shader_chain() {

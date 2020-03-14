@@ -1,11 +1,12 @@
 #include "../include/celerytest_lua.hpp"
+#include "../include/celerytest_env2d.hpp"
 #include "../include/celerytest_log.hpp"
 #include "../include/celerytest_shader.hpp"
 #include "../include/celerytest_sim.hpp"
 using namespace celerytest;
 
 const auto root = std::filesystem::path(".");
-
+auto env2d = std::unique_ptr<std::vector<U32>>{nullptr};
 lua::lua() {
   L = luaL_newstate();
   assert(L);
@@ -132,8 +133,8 @@ int lua::sim_create(lua_State *L) {
       log(severity::info, {"creating shaderlist..."});
       auto ref = celerytest::sim_reference(what);
       assert(ref->get_type() == celerytest::sim_types::shaderlist);
-      dynamic_cast<celerytest::sim_shaderlist *>(ref)->primary =
-          std::make_unique<celerytest::shader_chain>();
+      auto &&casted = dynamic_cast<celerytest::sim_shaderlist *>(ref);
+      casted->primary = std::make_unique<celerytest::shader_chain>();
       for (auto i = 1;; i++) {
         auto type = lua_geti(L, 3, i);
         if (type == LUA_TNIL) {
@@ -142,19 +143,49 @@ int lua::sim_create(lua_State *L) {
         }
         if (type == LUA_TNUMBER) {
           auto idx = lua_tointeger(L, -1);
-          
+
           lua_pop(L, 1);
           auto sh = celerytest::sim_reference(idx);
           assert(sh->get_type() == celerytest::sim_types::shaderobject);
-          dynamic_cast<celerytest::sim_shaderlist *>(ref)
-              ->primary->shader_idxs.emplace_front(
-                  dynamic_cast<celerytest::sim_shaderobject *>(sh)
-                      ->primary->idx);
+          casted->primary->shader_idxs.emplace_front(
+              dynamic_cast<celerytest::sim_shaderobject *>(sh)->primary->idx);
         }
       }
-      dynamic_cast<celerytest::sim_shaderlist *>(ref)
-          ->primary->shader_idxs.reverse();
-      dynamic_cast<celerytest::sim_shaderlist *>(ref)->primary->link();
+      casted->primary->shader_idxs.reverse();
+      casted->primary->link();
+      break;
+    }
+    case 4: {
+      log(severity::info, {"creating 2d ui element..."});
+
+      lua_getfield(L, 3, "x");
+      auto x = lua_tointeger(L, -1);
+      lua_pop(L, 1);
+
+      lua_getfield(L, 3, "y");
+      auto y = lua_tointeger(L, -1);
+      lua_pop(L, 1);
+
+      lua_getfield(L, 3, "w");
+      auto w = lua_tointeger(L, -1);
+      lua_pop(L, 1);
+
+      lua_getfield(L, 3, "h");
+      auto h = lua_tointeger(L, -1);
+      lua_pop(L, 1);
+
+      lua_getfield(L, 3, "zlevel");
+      auto z = lua_tointeger(L, -1);
+      lua_pop(L, 1);
+
+      auto ref = celerytest::sim_reference(what);
+      assert(ref->get_type() == celerytest::sim_types::env2duiobject);
+      auto &&casted = dynamic_cast<celerytest::env2d_uiobject *>(ref);
+      casted->fill(w, h, x, y);
+      get_env2d()->emplace(get_env2d()->begin() + z, what);
+      log(severity::info,
+          {"ui2d w=", std::to_string(w), ", w=", std::to_string(h),
+           ", x=", std::to_string(x), ", y=", std::to_string(y)});
       break;
     }
     }
@@ -169,3 +200,14 @@ int lua::sim_delete(lua_State *L) {
 }
 
 lua::~lua() { lua_close(L); }
+
+std::vector<U32> *celerytest::get_env2d() {
+  if (!env2d) {
+    celerytest::log(celerytest::severity::info,
+                    {"Initializing 2D environment..."});
+    env2d = std::make_unique<std::vector<U32>>();
+    celerytest::log(celerytest::severity::info,
+                    {"Initialized 2D environment..."});
+  }
+  return env2d.get();
+}

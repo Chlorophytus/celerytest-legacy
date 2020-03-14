@@ -1,5 +1,6 @@
 #include "../include/celerytest_sim.hpp"
 #include "../include/celerytest_log.hpp"
+#include "../include/celerytest_env2d.hpp"
 using namespace celerytest;
 
 std::unique_ptr<sim_keys_t> sim_keys{nullptr};
@@ -58,6 +59,9 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
     return where;
   case 3:
     sim_vals->try_emplace(where, new sim_shaderlist());
+    return where;
+  case 4:
+    sim_vals->try_emplace(where, new env2d_uiobject());
     return where;
   default:
     log(severity::error,
