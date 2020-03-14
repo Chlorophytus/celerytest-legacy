@@ -13,8 +13,7 @@ struct sim_shaderobject : sim_object {
 };
 struct sim_shaderlist : sim_object {
   virtual const sim_types get_type() const { return sim_types::shaderlist; }
-  std::unique_ptr<std::forward_list<U32>> primary{nullptr};
-  std::unique_ptr<celerytest::shader_chain> secondary{nullptr};
+  std::unique_ptr<celerytest::shader_chain> primary{nullptr};
 };
 using sim_keys_t = std::bitset<UINT32_MAX>;
 using sim_vals_t = std::unordered_map<U32, sim_object *>;

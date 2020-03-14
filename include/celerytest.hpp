@@ -11,7 +11,6 @@
 // simple.
 #include <cassert>
 
-#include <algorithm>
 #include <bitset>
 #include <chrono>
 #include <cstdint>

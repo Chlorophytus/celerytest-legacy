@@ -12,9 +12,10 @@ struct shader {
   ~shader();
 };
 struct shader_chain {
-  std::forward_list<shader> chain;
+  std::forward_list<GLuint> shader_idxs;
   GLuint idx;
-  shader_chain(std::forward_list<shader> &&);
+  void link();
+  shader_chain();
   ~shader_chain();
 };
 } // namespace celerytest

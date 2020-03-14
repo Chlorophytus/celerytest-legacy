@@ -42,4 +42,10 @@ void main(){
     if (frag_paint.a < 0.001f) { discard; }
     color = vec4(mix(frag_paint.rgb, back, clamp(frag_paint.a, 0.0f, 1.0f)), 1.0f);
 }]]})
-celerytest.con.info("got a " .. frag)
+celerytest.con.info("VERT ObjID: " .. vert)
+celerytest.con.info("FRAG ObjID: " .. frag)
+
+local prog = celerytest.sim.create(celerytest.sim.types.shaderlist, nil, {
+    vert,
+    frag
+})

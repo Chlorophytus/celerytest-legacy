@@ -129,21 +129,37 @@ int lua::sim_create(lua_State *L) {
       break;
     }
     case 3: {
-      // WIP
-      lua_getfield(L, 3, "type");
-      auto shtype = luaL_checkinteger(L, -1);
-      lua_pop(L, 1);
-      lua_getfield(L, 3, "source");
-      auto source = luaL_checkstring(L, -1);
-      lua_pop(L, 1);
+      log(severity::info, {"creating shaderlist..."});
       auto ref = celerytest::sim_reference(what);
-      assert(ref->get_type() == celerytest::sim_types::shaderobject);
-      dynamic_cast<celerytest::sim_shaderlist *>
+      assert(ref->get_type() == celerytest::sim_types::shaderlist);
+      dynamic_cast<celerytest::sim_shaderlist *>(ref)->primary =
+          std::make_unique<celerytest::shader_chain>();
+      for (auto i = 1;; i++) {
+        auto type = lua_geti(L, 3, i);
+        if (type == LUA_TNIL) {
+          lua_pop(L, 1);
+          break;
+        }
+        if (type == LUA_TNUMBER) {
+          auto idx = lua_tointeger(L, -1);
+          
+          lua_pop(L, 1);
+          auto sh = celerytest::sim_reference(idx);
+          assert(sh->get_type() == celerytest::sim_types::shaderobject);
+          dynamic_cast<celerytest::sim_shaderlist *>(ref)
+              ->primary->shader_idxs.emplace_front(
+                  dynamic_cast<celerytest::sim_shaderobject *>(sh)
+                      ->primary->idx);
+        }
+      }
+      dynamic_cast<celerytest::sim_shaderlist *>(ref)
+          ->primary->shader_idxs.reverse();
+      dynamic_cast<celerytest::sim_shaderlist *>(ref)->primary->link();
       break;
     }
     }
   }
-  lua_pushnumber(L, what);
+  lua_pushinteger(L, what);
   return 1;
 }
 int lua::sim_delete(lua_State *L) {
