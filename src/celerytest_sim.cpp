@@ -1,6 +1,6 @@
 #include "../include/celerytest_sim.hpp"
-#include "../include/celerytest_log.hpp"
 #include "../include/celerytest_env2d.hpp"
+#include "../include/celerytest_log.hpp"
 using namespace celerytest;
 
 std::unique_ptr<sim_keys_t> sim_keys{nullptr};
@@ -19,14 +19,13 @@ void celerytest::sim_deinit() {
   celerytest::log(severity::warn,
                   {"Sim teardown time, will delete ",
                    std::to_string(sim_vals->size()), " objects..."});
+  celerytest::prune_loggers();
   sim_keys = nullptr;
   sim_vals = nullptr;
   celerytest::log(severity::warn, {"Sim teardown finished."});
 }
 
-U32 celerytest::sim_create(int Ltype) {
-  return sim_create_hint(Ltype, 0);
-}
+U32 celerytest::sim_create(int Ltype) { return sim_create_hint(Ltype, 0); }
 
 sim_object *celerytest::sim_reference(U32 where) {
   if (sim_keys->test(where)) {

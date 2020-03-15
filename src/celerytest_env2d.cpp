@@ -1,5 +1,4 @@
 #include "../include/celerytest_env2d.hpp"
-#include "../include/celerytest_log.hpp"
 using namespace celerytest;
 
 U32 celerytest::calc_alpha2d(U32 dst, U32 src) {
@@ -17,11 +16,14 @@ U32 celerytest::calc_alpha2d(U32 dst, U32 src) {
   src_a = (src >> 0x18) & 0x000000FF;
   auto out_a = U32((src_a + (dst_a * (src_a)))) & 0x000000FF;
   auto out_r = U32(((src_r * src_a) + ((dst_r * dst_a) * (src_a))) /
-                   (src_a + (dst_a * (src_a)))) & 0x000000FF;
+                   (src_a + (dst_a * (src_a)))) &
+               0x000000FF;
   auto out_g = U32(((src_g * src_a) + ((dst_g * dst_a) * (src_a))) /
-                   (src_a + (dst_a * (src_a)))) & 0x000000FF;
+                   (src_a + (dst_a * (src_a)))) &
+               0x000000FF;
   auto out_b = U32(((src_b * src_a) + ((dst_b * dst_a) * (src_a))) /
-                   (src_a + (dst_a * (src_a)))) & 0x000000FF;
+                   (src_a + (dst_a * (src_a)))) &
+               0x000000FF;
   return ((out_a << 0x18) | (out_r << 0x10) | (out_g << 0x08) |
           (out_b << 0x00));
 }
@@ -52,21 +54,15 @@ env2d_uiobject::~env2d_uiobject() {
   }
 }
 
-env2d_conobject::env2d_conobject() : env2d_uiobject(), dirty(true) {
+env2d_conobject::env2d_conobject() : env2d_uiobject(), playback{}, dirty(true) {
   // TODO: dynamic fonts
-  font = TTF_OpenFont("/usr/share/fonts/droid/DroidSansMono.ttf", 14);
-  surf = TTF_RenderText_Blended(font, "There's a new kid in town...test",
-                                SDL_Color{0x00, 0xC0, 0x00, 0xC0});
-  if (surf == nullptr) {
-    log(severity::error, {"TTF: ", TTF_GetError()});
-  }
-  assert(surf != nullptr);
+  font = TTF_OpenFont("/usr/share/fonts/gnu-free/FreeMono.otf", 15);
 }
 
 void env2d_conobject::tick() {
-  if (!dirty) {
+  if (!dirty)
     return;
-  }
+  dirty = false;
   for (auto i = 0; i < h; i++) {
     for (auto j = 0; j < w; j++) {
       framebuffer[i * w + j] = 0x10101010;
@@ -74,20 +70,78 @@ void env2d_conobject::tick() {
   }
 
   // very sloppy math ahead
+  if (playback.empty()) {
+    return;
+  }
+  U8 sr, sg, sb, sa;
+  auto off = 0;
+  auto size = S32(playback.size());
+
+  for (S32 i = size - 23; i < size; i++) {
+    if (i < 0) {
+      goto full;
+    }
+    if (!playback.at(i)->str.empty()) {
+      switch (playback.at(i)->sev) {
+      case severity::warn: {
+        surf = TTF_RenderText_Blended(font, playback.at(i)->str.c_str(),
+                                      SDL_Color{191, 191, 191, 0x10});
+        break;
+      }
+      case severity::error: {
+        surf = TTF_RenderText_Blended(font, playback.at(i)->str.c_str(),
+                                      SDL_Color{255, 0, 0, 0x10});
+        break;
+      }
+      default: {
+        surf = TTF_RenderText_Blended(font, playback.at(i)->str.c_str(),
+                                      SDL_Color{0, 127, 0, 0x10});
+        break;
+      }
+      }
+      if (surf == nullptr) {
+        log(severity::error, {"TTF: ", TTF_GetError()});
+      }
+      assert(surf != nullptr);
+      SDL_LockSurface(surf);
+      auto pixels = reinterpret_cast<U8 *>(surf->pixels);
+      for (auto i = 0; i < surf->h; i++) {
+        for (auto j = 0; j < surf->w; j++) {
+          auto index = i * surf->pitch + (j << 2);
+          SDL_GetRGBA(*reinterpret_cast<U32 *>(pixels + index), surf->format,
+                      &sr, &sg, &sb, &sa);
+          auto dst = (U32(sa) << 0x18) | (U32(sr) << 0x10) | (U32(sg) << 0x08) |
+                     (U32(sb) << 0x00);
+          framebuffer[(i + off) * w + j] =
+              calc_alpha2d(dst, framebuffer[(i + off) * w + j]);
+        }
+      }
+      SDL_UnlockSurface(surf);
+      SDL_FreeSurface(surf);
+    }
+  full:
+    off += 15;
+  }
+  surf = TTF_RenderText_Blended(font, "lua>_", SDL_Color{0, 255, 0});
+  if (surf == nullptr) {
+    log(severity::error, {"TTF: ", TTF_GetError()});
+  }
+  assert(surf != nullptr);
   SDL_LockSurface(surf);
   auto pixels = reinterpret_cast<U8 *>(surf->pixels);
-  U8 sr, sg, sb, sa;
   for (auto i = 0; i < surf->h; i++) {
-    for (auto j = 4; j < surf->w; j++) {
+    for (auto j = 0; j < surf->w; j++) {
       auto index = i * surf->pitch + (j << 2);
       SDL_GetRGBA(*reinterpret_cast<U32 *>(pixels + index), surf->format, &sr,
                   &sg, &sb, &sa);
       auto dst = (U32(sa) << 0x18) | (U32(sr) << 0x10) | (U32(sg) << 0x08) |
                  (U32(sb) << 0x00);
-      framebuffer[i * w + j] = calc_alpha2d(dst, framebuffer[i * w + j]);
+      framebuffer[(i + off) * w + j] =
+          calc_alpha2d(dst, framebuffer[(i + off) * w + j]);
     }
   }
   SDL_UnlockSurface(surf);
+  SDL_FreeSurface(surf);
 }
 
-env2d_conobject::~env2d_conobject() { SDL_FreeSurface(surf); }
+env2d_conobject::~env2d_conobject() {}

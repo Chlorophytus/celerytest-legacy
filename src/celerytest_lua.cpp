@@ -1,6 +1,5 @@
 #include "../include/celerytest_lua.hpp"
 #include "../include/celerytest_env2d.hpp"
-#include "../include/celerytest_log.hpp"
 #include "../include/celerytest_shader.hpp"
 #include "../include/celerytest_sim.hpp"
 using namespace celerytest;
@@ -8,6 +7,27 @@ using namespace celerytest;
 const auto root = std::filesystem::path(".");
 auto env2d = std::unique_ptr<std::vector<U32>>{nullptr};
 auto con2d = std::unique_ptr<U32>{nullptr};
+
+void celerytest::con2d_log(celerytest::severity s,
+                           std::forward_list<std::string_view> &&msg) {
+  auto rconsole = celerytest::sim_reference(*con2d);
+  assert(rconsole->get_type() == sim_types::env2duiobject);
+  assert(dynamic_cast<celerytest::env2d_uiobject *>(rconsole)->get_subtype() ==
+         env2d_types::console);
+  auto console = dynamic_cast<celerytest::env2d_conobject *>(rconsole);
+  auto cnt = 0;
+  auto f = std::string("");
+  for (auto m : msg) {
+      if(cnt > 80) {break;}
+    for (auto c : m) {
+      if(cnt > 80) {break;}
+      f.push_back(c);
+      cnt++;
+    }
+  }
+  console->playback.emplace_back(new celerytest::env2d_conentry{s, f});
+  console->dirty = true;
+}
 
 U32 celerytest::get_con2d() {
   if (!con2d) {

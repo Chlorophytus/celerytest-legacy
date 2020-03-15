@@ -7,6 +7,12 @@ void celerytest::emplace_logger(log_fun fun) {
   funs->emplace_front(fun);
 }
 
+void celerytest::prune_loggers() {
+  log(severity::warn, {"Pruning loggers..."});
+  funs->clear();
+  funs->emplace_front(&celerytest::log_printf);
+}
+
 void celerytest::log(severity s, std::forward_list<std::string_view> &&msg) {
   if (!funs) {
     funs = std::make_unique<std::forward_list<log_fun>>();

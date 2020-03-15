@@ -1,6 +1,6 @@
 #pragma once
 #include "celerytest.hpp"
-
+#include "celerytest_log.hpp"
 namespace celerytest {
 
 struct lua {
@@ -20,4 +20,5 @@ struct lua {
 };
 std::vector<U32> *get_env2d();
 U32 get_con2d();
+void con2d_log(celerytest::severity, std::forward_list<std::string_view> &&);
 } // namespace celerytest

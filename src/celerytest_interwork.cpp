@@ -61,6 +61,8 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   lua_ctx->load("init.lua");
 
   get_con2d();
+  emplace_logger(&con2d_log);
+  log(severity::warn, {"2D console hooked."});
 }
 
 bool interwork::tick() {
