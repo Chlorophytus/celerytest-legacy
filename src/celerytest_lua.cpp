@@ -21,7 +21,7 @@ U32 celerytest::get_con2d() {
         env2d_types::console);
 
     auto console = dynamic_cast<celerytest::env2d_conobject *>(rconsole);
-    console->fill(480, 360, 2, 2);
+    console->fill(480, 360, 0, 0);
     // OHNO: could be dangerous
     get_env2d()->emplace_back(*con2d);
     log(severity::info, {"Created 2D console..."});

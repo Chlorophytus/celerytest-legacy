@@ -3,6 +3,7 @@
 #include "celerytest_sim.hpp"
 
 namespace celerytest {
+U32 calc_alpha2d(U32, U32);
 enum class env2d_types : U8 {
   object, // DONE
   console // DONE

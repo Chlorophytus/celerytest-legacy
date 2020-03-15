@@ -29,7 +29,7 @@ layout(location = 10) in vec2 vert;
 out vec4 frag_paint;
 void main() {
     // Pass d's z val for Z feedback, thus allowing us to discard.
-    frag_paint = vec4(1.0f, 1.0f, 1.0f, 0.0f);
+    frag_paint = vec4(1.0f, 0.0f, 1.0f, 0.0f);
     gl_Position =  vec4(vert.xy, 0.0f, 1.0f);
 }
 ]]})
