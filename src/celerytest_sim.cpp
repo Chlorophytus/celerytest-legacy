@@ -63,6 +63,9 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
   case 4:
     sim_vals->try_emplace(where, new env2d_uiobject());
     return where;
+  case 5:
+    sim_vals->try_emplace(where, new env2d_conobject());
+    return where;
   default:
     log(severity::error,
         {"Can't create bogus object type ", std::to_string(Ltype)});

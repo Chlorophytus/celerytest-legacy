@@ -19,4 +19,5 @@ struct lua {
   static int sim_delete(lua_State *);
 };
 std::vector<U32> *get_env2d();
+U32 get_con2d();
 } // namespace celerytest

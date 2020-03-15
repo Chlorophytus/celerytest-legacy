@@ -7,6 +7,28 @@ using namespace celerytest;
 
 const auto root = std::filesystem::path(".");
 auto env2d = std::unique_ptr<std::vector<U32>>{nullptr};
+auto con2d = std::unique_ptr<U32>{nullptr};
+
+U32 celerytest::get_con2d() {
+  if (!con2d) {
+    log(severity::info, {"Creating 2D console..."});
+    auto what = celerytest::sim_create(5);
+    con2d = std::make_unique<U32>(what);
+    auto rconsole = celerytest::sim_reference(*con2d);
+    assert(rconsole->get_type() == sim_types::env2duiobject);
+    assert(
+        dynamic_cast<celerytest::env2d_uiobject *>(rconsole)->get_subtype() ==
+        env2d_types::console);
+
+    auto console = dynamic_cast<celerytest::env2d_conobject *>(rconsole);
+    console->fill(480, 360, 2, 2);
+    // OHNO: could be dangerous
+    get_env2d()->emplace_back(*con2d);
+    log(severity::info, {"Created 2D console..."});
+  }
+  return *con2d;
+}
+
 lua::lua() {
   L = luaL_newstate();
   assert(L);
@@ -85,9 +107,9 @@ int lua::sim_create(lua_State *L) {
   }
   if (lua_istable(L, 3)) {
     switch (type) {
-    case 1: {
-      break;
-    }
+
+      // Create a 2d console.
+
     case 2: {
       lua_getfield(L, 3, "type");
       auto shtype = luaL_checkinteger(L, -1);

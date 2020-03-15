@@ -59,6 +59,8 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
 
   lua_ctx = std::make_unique<lua>();
   lua_ctx->load("init.lua");
+
+  get_con2d();
 }
 
 bool interwork::tick() {

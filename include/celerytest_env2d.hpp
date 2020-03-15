@@ -4,8 +4,8 @@
 
 namespace celerytest {
 enum class env2d_types : U8 {
-  object,    // DONE
-  console    // TODO
+  object, // DONE
+  console // DONE
 };
 struct env2d_uiobject : sim_object {
   U16 w, h, x, y;
@@ -19,6 +19,15 @@ struct env2d_uiobject : sim_object {
 
   env2d_uiobject();
   ~env2d_uiobject();
+};
+struct env2d_conobject : env2d_uiobject {
+  virtual const env2d_types get_subtype() const { return env2d_types::console; }
+  bool dirty;
+  TTF_Font *font;
+  SDL_Surface *surf;
+  env2d_conobject();
+  ~env2d_conobject();
+  virtual void tick();
 };
 // TODO: resizeable Env2DUiObjects :)
 } // namespace celerytest

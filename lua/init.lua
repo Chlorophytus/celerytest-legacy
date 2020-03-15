@@ -29,7 +29,7 @@ layout(location = 10) in vec2 vert;
 out vec4 frag_paint;
 void main() {
     // Pass d's z val for Z feedback, thus allowing us to discard.
-    frag_paint = vec4(1.0f, 0.0f, 1.0f, 0.0f);
+    frag_paint = vec4(1.0f, 1.0f, 1.0f, 0.0f);
     gl_Position =  vec4(vert.xy, 0.0f, 1.0f);
 }
 ]]})
@@ -49,13 +49,3 @@ local prog = celerytest.sim.create(celerytest.sim.types.shaderlist, nil, {
     frag,
 })
 celerytest.con.info("PROG ObjID: " .. prog)
-
-local ui2d = celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
-    x = 0,
-    y = 0,
-    w = 480,
-    h = 360,
-    zlevel = 0,
-})
-
-celerytest.con.info("UI2D ObjID: " .. ui2d)
