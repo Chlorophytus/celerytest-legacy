@@ -40,18 +40,18 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   }
   assert(e == GLEW_OK);
   F32 verts[8]{
-      -1.0f, -1.0f, // 0
-      -1.0f, 1.0f,  // 1
-      1.0f,  1.0f,  // 2
-      1.0f,  -1.0f  // 3
+      -0.5f, -0.5f, // 0
+      -0.5f, 0.5f,  // 1
+      0.5f,  0.5f,  // 2
+      0.5f,  -0.5f  // 3
   };
   U32 elems[6]{0, 1, 2, 2, 3, 0};
-  glGenVertexArrays(1, &vao2d);
-  glBindVertexArray(vao2d);
-  glGenBuffers(1, &ebo2d);
-  glGenBuffers(1, &vbo2d);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo2d);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo2d);
+  glGenVertexArrays(1, &vao_test);
+  glBindVertexArray(vao_test);
+  glGenBuffers(1, &ebo_test);
+  glGenBuffers(1, &vbo_test);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo_test);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_test);
   glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elems), elems, GL_STATIC_DRAW);
   glEnableVertexAttribArray(10);
@@ -70,14 +70,15 @@ bool interwork::tick() {
   SDL_PollEvent(&event);
 
   // TODO: Insert some OpenGL calls here
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   for (auto &&ui_elemid : *get_env2d()) {
     auto &&ui_elem = celerytest::sim_reference(ui_elemid);
     assert(ui_elem->get_type() == celerytest::sim_types::env2duiobject);
     auto &&casted = dynamic_cast<celerytest::env2d_uiobject *>(ui_elem);
     assert(!casted->empty_before);
+    if(!casted->show) {continue;}
     casted->tick();
     if (casted->resize) {
       log(celerytest::severity::warn, {"resize"});
@@ -106,7 +107,7 @@ bool interwork::tick() {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, casted->fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, casted->w, casted->h, casted->x, h - casted->y,
-                      casted->x + casted->w, h - casted->h + casted->y,
+                      casted->x + casted->w, h - (casted->h + casted->y),
                       GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
@@ -123,7 +124,7 @@ bool interwork::tick() {
 }
 
 interwork::~interwork() {
-  glDisableVertexAttribArray(10);
+  // glDisableVertexAttribArray(10);
   SDL_GL_DeleteContext(ctx);
   SDL_DestroyWindow(window);
 }

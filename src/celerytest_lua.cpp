@@ -18,15 +18,18 @@ void celerytest::con2d_log(celerytest::severity s,
   auto cnt = 0;
   auto f = std::string("");
   for (auto m : msg) {
-      if(cnt > 80) {break;}
+    cnt = 0;
     for (auto c : m) {
-      if(cnt > 80) {break;}
+      if (cnt > 80) {
+        break;
+      }
       f.push_back(c);
       cnt++;
     }
   }
   console->playback.emplace_back(new celerytest::env2d_conentry{s, f});
   console->dirty = true;
+  console->show = false;
 }
 
 U32 celerytest::get_con2d() {
@@ -41,7 +44,7 @@ U32 celerytest::get_con2d() {
         env2d_types::console);
 
     auto console = dynamic_cast<celerytest::env2d_conobject *>(rconsole);
-    console->fill(480, 360, 0, 0);
+    console->fill(480, 360, 0, 0, nullptr);
     // OHNO: could be dangerous
     get_env2d()->emplace_back(*con2d);
     log(severity::info, {"Created 2D console..."});
@@ -127,9 +130,6 @@ int lua::sim_create(lua_State *L) {
   }
   if (lua_istable(L, 3)) {
     switch (type) {
-
-      // Create a 2d console.
-
     case 2: {
       lua_getfield(L, 3, "type");
       auto shtype = luaL_checkinteger(L, -1);
@@ -223,11 +223,16 @@ int lua::sim_create(lua_State *L) {
       auto ref = celerytest::sim_reference(what);
       assert(ref->get_type() == celerytest::sim_types::env2duiobject);
       auto &&casted = dynamic_cast<celerytest::env2d_uiobject *>(ref);
-      casted->fill(w, h, x, y);
+
+      lua_getfield(L, 3, "image");
+      if (!lua_isnoneornil(L, -1)) {
+        auto pstr = lua_tostring(L, -1);
+        lua_pop(L, 1);
+        casted->fill(w, h, x, y, (root / pstr).c_str());
+      } else {
+        casted->fill(w, h, x, y, nullptr);
+      }
       get_env2d()->emplace(get_env2d()->begin() + z, what);
-      log(severity::info,
-          {"ui2d w=", std::to_string(w), ", w=", std::to_string(h),
-           ", x=", std::to_string(x), ", y=", std::to_string(y)});
       break;
     }
     }

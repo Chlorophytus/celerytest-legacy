@@ -14,6 +14,8 @@ U32 celerytest::calc_alpha2d(U32 dst, U32 src) {
   src_g = (src >> 0x08) & 0x000000FF;
   src_r = (src >> 0x10) & 0x000000FF;
   src_a = (src >> 0x18) & 0x000000FF;
+
+  // out = alpha * new + (1 - alpha) * old
   auto out_a = U32((src_a + (dst_a * (src_a)))) & 0x000000FF;
   auto out_r = U32(((src_r * src_a) + ((dst_r * dst_a) * (src_a))) /
                    (src_a + (dst_a * (src_a)))) &
@@ -29,19 +31,42 @@ U32 celerytest::calc_alpha2d(U32 dst, U32 src) {
 }
 
 env2d_uiobject::env2d_uiobject()
-    : resize{true}, dirty_before{false}, empty_before{true} {}
+    : resize(true), dirty_before(false), empty_before(true), show(true) {}
 
-void env2d_uiobject::fill(U16 _w, U16 _h, U16 _x, U16 _y) {
+void env2d_uiobject::fill(U16 _w, U16 _h, U16 _x, U16 _y, const char *path) {
   assert(empty_before);
   empty_before = false;
-  w = _w;
-  h = _h;
   x = _x;
   y = _y;
-  framebuffer = new U32[_w * _h];
-  for (auto i = 0; i < _h; i++) {
-    for (auto j = 0; j < _w; j++) {
-      framebuffer[i * _w + j] = 0xFFFFFFFF;
+  surf = (path != nullptr) ? IMG_Load(path) : nullptr;
+  if (surf) {
+    w = surf->w;
+    h = surf->h;
+    framebuffer = new U32[w * h];
+    SDL_LockSurface(surf);
+    auto pixels = reinterpret_cast<U8 *>(surf->pixels);
+    U8 sr, sg, sb, sa;
+    for (auto i = 0; i < h; i++) {
+      for (auto j = 0; j < w; j++) {
+        auto index = i * surf->pitch + (j << 2);
+        SDL_GetRGBA(*reinterpret_cast<U32 *>(pixels + index), surf->format, &sr,
+                    &sg, &sb, &sa);
+        auto dst = (U32(sa) << 0x18) | (U32(sb) << 0x10) | (U32(sg) << 0x08) |
+                   (U32(sr) << 0x00);
+        framebuffer[i * w + j] = dst;
+      }
+    }
+    SDL_UnlockSurface(surf);
+    SDL_FreeSurface(surf);
+    return;
+  } else {
+    w = _w;
+    h = _h;
+    framebuffer = new U32[w * h];
+    for (auto i = 0; i < h; i++) {
+      for (auto j = 0; j < w; j++) {
+        framebuffer[i * w + j] = 0xFFFFFFFF;
+      }
     }
   }
 }
@@ -143,5 +168,3 @@ void env2d_conobject::tick() {
   SDL_UnlockSurface(surf);
   SDL_FreeSurface(surf);
 }
-
-env2d_conobject::~env2d_conobject() {}

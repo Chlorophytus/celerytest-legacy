@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # You can change the name of the project
-project(celerytest VERSION 0.1.0.17)
+project(celerytest VERSION 0.1.0.18)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in include/${PROJECT_NAME}_cfg.hpp)
@@ -42,4 +42,4 @@ target_link_libraries(${PROJECT_NAME}
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${LUA_LIBRARIES}
-    ${SDL2_LIBRARIES} libSDL2_ttf.so libSDL2.so) 
+    ${SDL2_LIBRARIES} SDL2_image SDL2_ttf SDL2_net SDL2) 

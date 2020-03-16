@@ -10,9 +10,9 @@ struct interwork {
   std::unique_ptr<lua> lua_ctx;
   U16 w, h;
 
-  // OpenGL forces you to draw tris even with 2D
-  GLuint ebo2d, vao2d, vbo2d;
-
+  GLuint ebo_test, vao_test, vbo_test;
+  // OpenGL ALSO forces you to handle blitting weirdly
+  GLuint fbo2d;
   bool fullscreen;
   bool tick();
   interwork(U16, U16, bool);

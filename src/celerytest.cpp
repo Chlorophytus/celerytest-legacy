@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 
   // SDL will return a non-zero value for failure in initialization.
   auto init = SDL_Init(SDL_INIT_EVERYTHING);
+  IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
   TTF_Init();
   if (init != 0) {
     celerytest::check_sdl_error();
@@ -55,6 +56,7 @@ int main(int argc, char **argv) {
 
   celerytest::sim_deinit();
   // Quit SDL lastly, **LASTLY**.
+  IMG_Quit();
   TTF_Quit();
   SDL_Quit();
   return 0;
