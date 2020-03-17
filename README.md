@@ -1,3 +1,5 @@
+![Celerytest](https://raw.githubusercontent.com/Chlorophytus/celerytest/master/lib/CelerytestPromo.png)
+
 # celerytest
 OpenGL 4.5 game engine! Inspired by Torque Game Engine 
 
