@@ -52,7 +52,7 @@ void env2d_conobject::tick() {
   U8 sr, sg, sb, sa;
   auto off = 0;
   auto size = S32(playback.size());
-
+  SDL_FillRect(surf, nullptr, 0xFFFFFFDD);
   for (S32 i = size - 23; i < size; i++) {
     if (i < 0) {
       goto full;
@@ -61,17 +61,17 @@ void env2d_conobject::tick() {
       switch (playback.at(i)->sev) {
       case severity::warn: {
         fontsurf = TTF_RenderText_Blended(font, playback.at(i)->str.c_str(),
-                                          SDL_Color{191, 191, 191, 0x10});
+                                          SDL_Color{127, 127, 127, 0xFF});
         break;
       }
       case severity::error: {
         fontsurf = TTF_RenderText_Blended(font, playback.at(i)->str.c_str(),
-                                          SDL_Color{255, 0, 0, 0x10});
+                                          SDL_Color{255, 0, 0, 0xFF});
         break;
       }
       default: {
         fontsurf = TTF_RenderText_Blended(font, playback.at(i)->str.c_str(),
-                                          SDL_Color{0, 127, 0, 0x10});
+                                          SDL_Color{0, 0, 0, 0xFF});
         break;
       }
       }
@@ -86,12 +86,11 @@ void env2d_conobject::tick() {
   full:
     off += 15;
   }
-  fontsurf = TTF_RenderText_Blended(font, "lua>_", SDL_Color{0, 255, 0, 0x80});
+  fontsurf = TTF_RenderText_Blended(font, "lua>_", SDL_Color{0, 0, 0, 0xFF});
   if (fontsurf == nullptr) {
     log(severity::error, {"TTF: ", TTF_GetError()});
   }
   assert(fontsurf != nullptr);
   SDL_Rect r{.x = 0, .y = off, .w = fontsurf->w, .h = fontsurf->h};
   SDL_BlitSurface(fontsurf, nullptr, surf, &r);
-  SDL_FreeSurface(fontsurf);
 }

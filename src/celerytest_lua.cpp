@@ -29,7 +29,6 @@ void celerytest::con2d_log(celerytest::severity s,
   }
   console->playback.emplace_back(new celerytest::env2d_conentry{s, f});
   console->dirty = true;
-  console->show = false;
 }
 
 U32 celerytest::get_con2d() {
@@ -46,6 +45,8 @@ U32 celerytest::get_con2d() {
     auto console = dynamic_cast<celerytest::env2d_conobject *>(rconsole);
     console->fill(480, 360, 0, 0, nullptr);
     // OHNO: could be dangerous
+    console->dirty = true;
+    console->show = true;
     get_env2d()->emplace_back(*con2d);
     log(severity::info, {"Created 2D console..."});
   }
@@ -208,14 +209,6 @@ int lua::sim_create(lua_State *L) {
       auto y = lua_tointeger(L, -1);
       lua_pop(L, 1);
 
-      lua_getfield(L, 3, "w");
-      auto w = lua_tointeger(L, -1);
-      lua_pop(L, 1);
-
-      lua_getfield(L, 3, "h");
-      auto h = lua_tointeger(L, -1);
-      lua_pop(L, 1);
-
       lua_getfield(L, 3, "zlevel");
       auto z = lua_tointeger(L, -1);
       lua_pop(L, 1);
@@ -226,10 +219,21 @@ int lua::sim_create(lua_State *L) {
 
       lua_getfield(L, 3, "image");
       if (!lua_isnoneornil(L, -1)) {
+        // since our image already has width and height vals just use dummy
+        // vals.
         auto pstr = lua_tostring(L, -1);
         lua_pop(L, 1);
-        casted->fill(w, h, x, y, (root / pstr).c_str());
+        casted->fill(-1, -1, x, y, (root / pstr).c_str());
       } else {
+        // of course a procedurally generated ui needs W and H vals
+        lua_getfield(L, 3, "w");
+        auto w = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "h");
+        auto h = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+
         casted->fill(w, h, x, y, nullptr);
       }
       get_env2d()->emplace(get_env2d()->begin() + z, what);

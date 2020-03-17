@@ -53,8 +53,6 @@ celerytest = {
 celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
     x = 0,
     y = 0,
-    w = -1,
-    h = -1,
     zlevel = 0,
     image = "lib/CGEBackdrop.png",
 })
@@ -62,8 +60,6 @@ celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
 celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
     x = 10,
     y = 10,
-    w = -1,
-    h = -1, 
     zlevel = 1,
     image = "lib/CGE.png",
 })
@@ -71,8 +67,6 @@ celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
 celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
     x = 10,
     y = 130,
-    w = -1,
-    h = -1, 
     zlevel = 1,
     image = "lib/CGEPlay.png",
 })
