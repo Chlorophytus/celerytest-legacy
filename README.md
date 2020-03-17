@@ -1,5 +1,5 @@
 # celerytest
-Voxel stuff...
+OpenGL 4.5 game engine! Inspired by Torque Game Engine 
 
 ## Usage
 ```
