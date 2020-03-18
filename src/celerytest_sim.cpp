@@ -71,6 +71,9 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
   case 6:
     sim_vals->try_emplace(where, new env3d_shaderprogram());
     return where;
+  case 7:
+    sim_vals->try_emplace(where, new env3d_shaderopaque());
+    return where;
   default:
     log(severity::error,
         {"Can't create bogus object type ", std::to_string(Ltype)});

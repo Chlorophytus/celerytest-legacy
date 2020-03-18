@@ -1,6 +1,6 @@
 #include "../include/celerytest_lua.hpp"
 #include "../include/celerytest_env2d.hpp"
-#include "../include/celerytest_shader.hpp"
+#include "../include/celerytest_env3d.hpp"
 #include "../include/celerytest_sim.hpp"
 using namespace celerytest;
 
@@ -134,76 +134,11 @@ int lua::sim_create(lua_State *L) {
     case 2: {
       log(severity::error, {"You are creating a deprecated object. Stop."});
       assert(false);
-#if 0
-      lua_getfield(L, 3, "type");
-      auto shtype = luaL_checkinteger(L, -1);
-      lua_pop(L, 1);
-      lua_getfield(L, 3, "source");
-      auto source = luaL_checkstring(L, -1);
-      lua_pop(L, 1);
-      auto ref = celerytest::sim_reference(what);
-      assert(ref->get_type() == celerytest::sim_types::shaderobject);
-      switch (shtype) {
-      case 1: {
-        log(severity::info, {"creating compute shader..."});
-        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
-            std::make_unique<celerytest::env3d>(
-                celerytest::shader::type::compute, source);
-        break;
-      }
-      case 2: {
-        log(severity::info, {"creating vertex shader..."});
-        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
-            std::make_unique<celerytest::shader>(
-                celerytest::shader::type::vertex, source);
-        break;
-      }
-      case 3: {
-        log(severity::info, {"creating fragment shader..."});
-        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
-            std::make_unique<celerytest::shader>(
-                celerytest::shader::type::fragment, source);
-        break;
-      }
-      case 4: {
-        log(severity::info, {"creating geometry shader..."});
-        dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
-            std::make_unique<celerytest::shader>(
-                celerytest::shader::type::geometry, source);
-        break;
-      }
-      }
-#endif
       break;
     }
     case 3: {
       log(severity::error, {"You are creating a deprecated object. Stop."});
       assert(false);
-#if 0
-      log(severity::info, {"creating shaderlist..."});
-      auto ref = celerytest::sim_reference(what);
-      assert(ref->get_type() == celerytest::sim_types::shaderlist);
-      auto &&casted = dynamic_cast<celerytest::sim_shaderlist *>(ref);
-      casted->primary = std::make_unique<celerytest::shader_chain>();
-      for (auto i = 1;; i++) {
-        auto type = lua_geti(L, 3, i);
-        if (type == LUA_TNIL) {
-          lua_pop(L, 1);
-          break;
-        }
-        if (type == LUA_TNUMBER) {
-          auto idx = lua_tointeger(L, -1);
-
-          lua_pop(L, 1);
-          auto sh = celerytest::sim_reference(idx);
-          assert(sh->get_type() == celerytest::sim_types::shaderobject);
-          casted->primary->shader_idxs.emplace_front(
-              dynamic_cast<celerytest::sim_shaderobject *>(sh)->primary->idx);
-        }
-      }
-      casted->primary->shader_idxs.reverse();
-      casted->primary->link();
-#endif
       break;
     }
     case 4: {
@@ -248,35 +183,75 @@ int lua::sim_create(lua_State *L) {
       break;
     }
     case 6: {
+      lua_getfield(L, 3, "is_main");
+      auto is_main = lua_isboolean(L, -1);
+      lua_pop(L, 1);
+      auto ref = celerytest::sim_reference(what);
+      assert(ref->get_type() == celerytest::sim_types::env3duiobject);
+      auto casted = dynamic_cast<celerytest::env3d_uiobject *>(ref);
+      assert(casted->get_subtype() == celerytest::env3d_types::shaderprogram);
+      auto shader_program =
+          dynamic_cast<celerytest::env3d_shaderprogram *>(casted);
+      shader_program->main_program = is_main;
+
       lua_getfield(L, 3, "shaders");
-      if (lua_istable(L, -1)) {
-        for (auto i = 1;; i++) {
-          auto type = lua_geti(L, 3, i);
-          if (type == LUA_TNIL) {
-            lua_pop(L, 1);
-            break;
-          }
-          if (type == LUA_TTABLE) {
-            auto table = luaL_getsubtable(L, -1, std::to_string(i).c_str());
-            lua_getfield(L, -1, "source");
-            auto source = lua_tostring(L, -1);
-            lua_pop(L, 1);
-            lua_getfield(L, -1, "type");
-            auto type = lua_tostring(L, -1);
-            lua_pop(L, 1);
-            auto sh = celerytest::sim_reference(what);
-            // assert(sh->get_type() == celerytest::sim_types::shaderobject);
-            // casted->primary->shader_idxs.emplace_front(
-            //     dynamic_cast<celerytest::sim_shaderobject
-            //     *>(sh)->primary->idx);
-          }
+      for (auto i = 1;; i++) {
+        auto type = lua_geti(L, -1, i);
+        if (type == LUA_TNIL) {
+          lua_pop(L, 1);
+          break;
         }
-        lua_getfield(L, 3, "source");
-        auto source = luaL_checkstring(L, -1);
-        auto type = lua_geti(L, 3, i);
-        lua_pop(L, 1);
+        if (type == LUA_TNUMBER) {
+          auto idx = lua_tointeger(L, -1);
+          lua_pop(L, 1);
+
+          auto sh = celerytest::sim_reference(idx);
+          assert(sh->get_type() == celerytest::sim_types::env3duiobject);
+
+          auto casted = dynamic_cast<celerytest::env3d_uiobject *>(sh);
+          assert(casted->get_subtype() ==
+                 celerytest::env3d_types::shaderopaque);
+
+          auto opaque = dynamic_cast<celerytest::env3d_shaderopaque *>(casted);
+          shader_program->opaques.emplace_front(*opaque);
+        }
       }
       lua_pop(L, 1);
+      shader_program->link();
+      break;
+    }
+    case 7: {
+      lua_getfield(L, 3, "source");
+      auto source = lua_tostring(L, -1);
+      lua_pop(L, 1);
+      lua_getfield(L, 3, "type");
+      auto shader_type = lua_tointeger(L, -1);
+      lua_pop(L, 1);
+      auto ref = celerytest::sim_reference(what);
+      assert(ref->get_type() == celerytest::sim_types::env3duiobject);
+      auto casted = dynamic_cast<celerytest::env3d_uiobject *>(ref);
+      assert(casted->get_subtype() == celerytest::env3d_types::shaderopaque);
+      auto opaque = dynamic_cast<celerytest::env3d_shaderopaque *>(casted);
+      switch (shader_type) {
+      case 1: {
+        opaque->compile(source, celerytest::env3d_shaderopaque::types::compute);
+        break;
+      }
+      case 2: {
+        opaque->compile(source,
+                        celerytest::env3d_shaderopaque::types::fragment);
+        break;
+      }
+      case 3: {
+        opaque->compile(source,
+                        celerytest::env3d_shaderopaque::types::geometry);
+        break;
+      }
+      case 4: {
+        opaque->compile(source, celerytest::env3d_shaderopaque::types::vertex);
+        break;
+      }
+      }
       break;
     }
     }

@@ -1,6 +1,5 @@
 #pragma once
 #include "celerytest.hpp"
-#include "celerytest_shader.hpp"
 
 namespace celerytest {
 enum class sim_types : U8 {

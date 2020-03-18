@@ -2,53 +2,58 @@
 #include "../include/celerytest_log.hpp"
 using namespace celerytest;
 
-env3d_shaderprogram::env3d_shaderprogram()
-    : program(glCreateProgram()), has_linked(false), ticks(0) {}
+env3d_shaderopaque::env3d_shaderopaque() : has_compiled(false) {}
 
-void env3d_shaderprogram::attach(std::string_view &&src,
-                                 env3d_shaderprogram::types type) {
-  log(severity::info, {"Attaching shader..."});
-  sources.emplace_front(src);
+env3d_shaderprogram::env3d_shaderprogram()
+    : program(glCreateProgram()), has_linked(false), ticks(0), opaques({}) {}
+
+void env3d_shaderopaque::compile(std::string_view &&src, types type) {
+  log(severity::info, {"Creating and compiling a shader..."});
   switch (type) {
   case types::compute: {
     log(severity::info, {" ... compute"});
-    shaders.emplace_front(glCreateShader(GL_COMPUTE_SHADER));
+    shader = glCreateShader(GL_COMPUTE_SHADER);
     break;
   }
   case types::fragment: {
     log(severity::info, {" ... fragment"});
-    shaders.emplace_front(glCreateShader(GL_FRAGMENT_SHADER));
+    shader = glCreateShader(GL_FRAGMENT_SHADER);
     break;
   }
   case types::geometry: {
     log(severity::info, {" ... geometry"});
-    shaders.emplace_front(glCreateShader(GL_GEOMETRY_SHADER));
+    shader = glCreateShader(GL_GEOMETRY_SHADER);
     break;
   }
   case types::vertex: {
     log(severity::info, {" ... vertex"});
-    shaders.emplace_front(glCreateShader(GL_VERTEX_SHADER));
+    shader = glCreateShader(GL_VERTEX_SHADER);
     break;
   }
   }
-  log(severity::info, {"Copying source for this shader"});
-  auto raw = new char[sources.front().size() + 1];
-  auto i = 0;
-  for (auto &&ch : sources.front()) {
-    raw[i++] = ch;
-  }
-  raw[sources.front().size()] = 0;
-  glShaderSource(shaders.front(), 1, &raw, NULL);
-  raws.emplace_front(raw);
 
-  log(severity::info, {"Attachment success, compiling..."});
-  glCompileShader(shaders.front());
+  log(severity::info, {" ... copy source"});
+  auto size = src.size();
+  raw_source = new char[size + 1];
+  raw_source[size] = 0;
+  auto i = 0;
+
+  for (auto &&ch : src) {
+    raw_source[i++] = ch;
+  }
+
+  log(severity::info, {" ... load source"});
+  glShaderSource(shader, 1, &raw_source, nullptr);
+  log(severity::info, {" ... compile"});
+  glCompileShader(shader);
+
   auto compile_status = GLint(0);
-  glGetShaderiv(shaders.front(), GL_COMPILE_STATUS, &compile_status);
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
+
   if (compile_status != GL_TRUE) {
     auto log_length = GLsizei(0);
     auto message = new GLchar[4096];
-    glGetShaderInfoLog(shaders.front(), 4096, &log_length, message);
+    glGetShaderInfoLog(shader, 4096, &log_length, message);
     log(severity::error,
         {"Can't compile this shader, check BELOW for error log"});
     log(severity::error, {message});
@@ -58,13 +63,20 @@ void env3d_shaderprogram::attach(std::string_view &&src,
   }
   assert(compile_status == GL_TRUE);
 
-  log(severity::info, {"Compile success"});
+  has_compiled = true;
+  log(severity::info, {" ... success"});
 }
 
 void env3d_shaderprogram::link() {
   log(severity::info, {"Linking program"});
   assert(!has_linked);
   has_linked = true;
+
+  opaques.reverse();
+  for (auto &&opaque : opaques) {
+    assert(opaque.has_compiled);
+    glAttachShader(program, opaque.shader);
+  }
 
   if (main_program) {
     log(severity::warn, {"Main shaderprogram mode enable for this one"});
@@ -88,21 +100,23 @@ void env3d_shaderprogram::link() {
   assert(link_status == GL_TRUE);
 
   log(severity::info, {"Using this program"});
-
+  
   glUseProgram(program);
 
   log(severity::info, {"Link success"});
 }
-
-env3d_shaderprogram::~env3d_shaderprogram() {
-  for (auto &&shader : shaders) {
-    glDetachShader(program, shader);
+env3d_shaderopaque::~env3d_shaderopaque() {
+  if (has_compiled) {
     glDeleteShader(shader);
+    delete[] raw_source;
+  }
+}
+env3d_shaderprogram::~env3d_shaderprogram() {
+  for (auto &&opaque : opaques) {
+    if (opaque.has_compiled)
+      glDetachShader(program, opaque.shader);
   }
   glDeleteProgram(program);
-  for (auto &&raw : raws) {
-    delete[] raw;
-  }
 }
 
 void env3d_shaderprogram::tick() { glUniform1ui(0, ticks++); }

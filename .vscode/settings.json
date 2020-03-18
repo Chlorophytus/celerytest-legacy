@@ -57,6 +57,7 @@
         "mutex": "cpp",
         "thread": "cpp",
         "forward_list": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "hash_map": "cpp"
     }
 }
