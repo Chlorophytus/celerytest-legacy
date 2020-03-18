@@ -1,5 +1,6 @@
 #include "../include/celerytest_sim.hpp"
 #include "../include/celerytest_env2d.hpp"
+#include "../include/celerytest_env3d.hpp"
 #include "../include/celerytest_log.hpp"
 using namespace celerytest;
 
@@ -54,16 +55,21 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
     sim_vals->try_emplace(where, new sim_object());
     return where;
   case 2:
-    sim_vals->try_emplace(where, new sim_shaderobject());
+    log(severity::error, {"You are creating a deprecated object (shaderobject). Stop."});
+    assert(false);
     return where;
   case 3:
-    sim_vals->try_emplace(where, new sim_shaderlist());
+    log(severity::error, {"You are creating a deprecated object (shaderlist). Stop."});
+    assert(false);
     return where;
   case 4:
     sim_vals->try_emplace(where, new env2d_uiobject());
     return where;
   case 5:
     sim_vals->try_emplace(where, new env2d_conobject());
+    return where;
+  case 6:
+    sim_vals->try_emplace(where, new env3d_shaderprogram());
     return where;
   default:
     log(severity::error,

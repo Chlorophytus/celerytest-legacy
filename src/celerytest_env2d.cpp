@@ -39,11 +39,6 @@ void env2d_conobject::tick() {
   if (!dirty)
     return;
   dirty = false;
-  // for (auto i = 0; i < h; i++) {
-  //   for (auto j = 0; j < w; j++) {
-  //     framebuffer[i * w + j] = 0x10101010;
-  //   }
-  // }
 
   // very sloppy math ahead
   if (playback.empty()) {

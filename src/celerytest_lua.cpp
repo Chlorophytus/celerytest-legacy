@@ -132,6 +132,9 @@ int lua::sim_create(lua_State *L) {
   if (lua_istable(L, 3)) {
     switch (type) {
     case 2: {
+      log(severity::error, {"You are creating a deprecated object. Stop."});
+      assert(false);
+#if 0
       lua_getfield(L, 3, "type");
       auto shtype = luaL_checkinteger(L, -1);
       lua_pop(L, 1);
@@ -144,7 +147,7 @@ int lua::sim_create(lua_State *L) {
       case 1: {
         log(severity::info, {"creating compute shader..."});
         dynamic_cast<celerytest::sim_shaderobject *>(ref)->primary =
-            std::make_unique<celerytest::shader>(
+            std::make_unique<celerytest::env3d>(
                 celerytest::shader::type::compute, source);
         break;
       }
@@ -170,9 +173,13 @@ int lua::sim_create(lua_State *L) {
         break;
       }
       }
+#endif
       break;
     }
     case 3: {
+      log(severity::error, {"You are creating a deprecated object. Stop."});
+      assert(false);
+#if 0
       log(severity::info, {"creating shaderlist..."});
       auto ref = celerytest::sim_reference(what);
       assert(ref->get_type() == celerytest::sim_types::shaderlist);
@@ -196,6 +203,7 @@ int lua::sim_create(lua_State *L) {
       }
       casted->primary->shader_idxs.reverse();
       casted->primary->link();
+#endif
       break;
     }
     case 4: {
@@ -237,6 +245,38 @@ int lua::sim_create(lua_State *L) {
         casted->fill(w, h, x, y, nullptr);
       }
       get_env2d()->emplace(get_env2d()->begin() + z, what);
+      break;
+    }
+    case 6: {
+      lua_getfield(L, 3, "shaders");
+      if (lua_istable(L, -1)) {
+        for (auto i = 1;; i++) {
+          auto type = lua_geti(L, 3, i);
+          if (type == LUA_TNIL) {
+            lua_pop(L, 1);
+            break;
+          }
+          if (type == LUA_TTABLE) {
+            auto table = luaL_getsubtable(L, -1, std::to_string(i).c_str());
+            lua_getfield(L, -1, "source");
+            auto source = lua_tostring(L, -1);
+            lua_pop(L, 1);
+            lua_getfield(L, -1, "type");
+            auto type = lua_tostring(L, -1);
+            lua_pop(L, 1);
+            auto sh = celerytest::sim_reference(what);
+            // assert(sh->get_type() == celerytest::sim_types::shaderobject);
+            // casted->primary->shader_idxs.emplace_front(
+            //     dynamic_cast<celerytest::sim_shaderobject
+            //     *>(sh)->primary->idx);
+          }
+        }
+        lua_getfield(L, 3, "source");
+        auto source = luaL_checkstring(L, -1);
+        auto type = lua_geti(L, 3, i);
+        lua_pop(L, 1);
+      }
+      lua_pop(L, 1);
       break;
     }
     }
