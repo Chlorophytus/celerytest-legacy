@@ -13,11 +13,11 @@ struct lua {
   static int con_info(lua_State *);
   static int con_warn(lua_State *);
   static int con_error(lua_State *);
-  static int con_toggle(lua_State *);
+  static int con_evaluate(lua_State *);
 
   // KMaps
   static int kmaps_declare(lua_State *);
-  void kmaps_call(SDL_Keycode);
+  void kmaps_call(lua_State *, SDL_Keycode);
 
   // Sim
   static int sim_create(lua_State *);

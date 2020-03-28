@@ -76,5 +76,3 @@ celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
     zlevel = 1,
     image = "lib/CGEPlay.png",
 })
-
-celerytest.kmaps.declare(string.byte('`',1), "__con_toggle")

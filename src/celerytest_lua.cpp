@@ -21,7 +21,7 @@ void celerytest::con2d_log(celerytest::severity s,
   for (auto m : msg) {
     cnt = 0;
     for (auto c : m) {
-      if (cnt > 80) {
+      if (cnt > 50) {
         break;
       }
       f.push_back(c);
@@ -65,8 +65,6 @@ lua::lua() {
   lua_setglobal(L, "__con_warn");
   lua_pushcfunction(L, con_error);
   lua_setglobal(L, "__con_error");
-  lua_pushcfunction(L, con_toggle);
-  lua_setglobal(L, "__con_toggle");
   lua_pushcfunction(L, kmaps_declare);
   lua_setglobal(L, "__kmaps_declare");
   lua_pushcfunction(L, sim_create);
@@ -125,18 +123,8 @@ int lua::con_error(lua_State *L) {
   return 0;
 }
 
-int lua::con_toggle(lua_State *L) {
-  auto ptr = dynamic_cast<env2d_uiobject *>(sim_reference(get_con2d()));
-  if (ptr->show) {
-    ptr->show = false;
-  } else {
-    ptr->show = true;
-  }
-  return 0;
-}
-
-kmaps_t *get_kmap() { 
-  if(!kmaps) {
+kmaps_t *get_kmap() {
+  if (!kmaps) {
     log(severity::warn, {"Making kmap..."});
     kmaps = std::make_unique<kmaps_t>();
   }
@@ -151,11 +139,55 @@ int lua::kmaps_declare(lua_State *L) {
   return 0;
 }
 
-void lua::kmaps_call(SDL_Keycode keycode) {
-  auto &&key = get_kmap()->find(keycode);
-  if(key != get_kmap()->end()) {
-    lua_getglobal(L, key->second.c_str());
-    lua_call(L, 0, 0);
+void lua::kmaps_call(lua_State *L, SDL_Keycode keycode) {
+  switch (keycode) {
+  case '`': {
+    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
+    if (con->show) {
+      con->show = false;
+    } else {
+      con->show = true;
+    }
+    break;
+  }
+  case SDLK_BACKSPACE: {
+    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
+    if (con->show && !con->curr_prompt.empty()) {
+      con->curr_prompt.pop_back();
+      con->dirty = true;
+    }
+    break;
+  }
+  case SDLK_RETURN: {
+    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
+    if (con->show && !con->curr_prompt.empty()) {
+      lua_pushstring(L, con->curr_prompt.c_str());
+      con->curr_prompt = "";
+      if (lua_pcall(L, 0, 0, 0) != 0) {
+        auto err = std::string{lua_tostring(L, -1)};
+        lua_pop(L, 1);
+        log(severity::error, {"lua: ", err});
+      }
+      con->dirty = true;
+    }
+    break;
+  }
+  default: {
+    if ((keycode & (1 << 30)) != 0) {
+      if (get_kmap()->count(keycode) > 0) {
+        auto &&key = get_kmap()->find(keycode);
+        lua_getglobal(L, key->second.c_str());
+        lua_call(L, 0, 0);
+      }
+    } else {
+      auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
+      if (con->show) {
+        con->curr_prompt.push_back(keycode);
+        con->dirty = true;
+      }
+    }
+    break;
+  }
   }
 }
 

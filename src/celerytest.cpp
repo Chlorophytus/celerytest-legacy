@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   celerytest::log(celerytest::severity::info, {"object creation timing done"});
   #endif
   while (inter->tick())
-    SDL_Delay(10);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
   celerytest::sim_deinit();
   // Quit SDL lastly, **LASTLY**.

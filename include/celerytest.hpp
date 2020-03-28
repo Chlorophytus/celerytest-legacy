@@ -19,6 +19,7 @@
 #include <initializer_list>
 #include <memory>
 #include <string_view>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 

@@ -10,7 +10,7 @@ enum class env2d_types : U8 {
 };
 struct env2d_uiobject : sim_object {
   U16 w, h, x, y;
-  bool empty_before, show;
+  bool empty_before, show, dirty;
   virtual const sim_types get_type() const { return sim_types::env2duiobject; }
   virtual const env2d_types get_subtype() const { return env2d_types::object; }
   void fill(U16, U16, U16, U16, const char *);
@@ -29,9 +29,8 @@ struct env2d_conobject : env2d_uiobject {
   TTF_Font *font;
   SDL_Surface *fontsurf;
   virtual void tick();
-  bool dirty;
   std::vector<std::unique_ptr<env2d_conentry>> playback;
-
+  std::string curr_prompt;
   env2d_conobject();
 };
 // TODO: resizeable Env2DUiObjects :)

@@ -9,7 +9,7 @@ void celerytest::check_sdl_error() {
 }
 
 interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
-    : w{_w}, h{_h}, fullscreen{_fullscreen}, framebuffer{new U32[_w * _h]}{
+    : w{_w}, h{_h}, fullscreen{_fullscreen}, framebuffer{new U32[_w * _h]} {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -86,7 +86,9 @@ bool interwork::tick() {
       continue;
     }
     SDL_Rect r{.x = casted->x, .y = casted->y, .w = casted->w, .h = casted->h};
-    SDL_BlitSurface(casted->surf, nullptr, surf, &r);
+    if (casted->dirty) {
+      SDL_BlitSurface(casted->surf, nullptr, surf, &r);
+    }
   }
   // bind...
   glBindTexture(GL_TEXTURE_2D, tex2d);
@@ -100,7 +102,7 @@ bool interwork::tick() {
       SDL_GetRGBA(*reinterpret_cast<U32 *>(pixels + index), surf->format, &sr,
                   &sg, &sb, &sa);
       framebuffer[i * w + j] = (U32(sa) << 0x18) | (U32(sb) << 0x10) |
-                               (U32(sg) << 0x08) | (U32(sr) << 0x00);
+                                (U32(sg) << 0x08) | (U32(sr) << 0x00);
     }
   }
   SDL_UnlockSurface(surf);
@@ -123,7 +125,7 @@ bool interwork::tick() {
       return false;
     } else {
       auto key = event.key.keysym.sym;
-      lua_ctx->kmaps_call(key);
+      lua_ctx->kmaps_call(lua_ctx->L, key);
     }
   }
   return event.type != SDL_QUIT;

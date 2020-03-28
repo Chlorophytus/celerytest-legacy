@@ -1,7 +1,8 @@
 #include "../include/celerytest_env2d.hpp"
 using namespace celerytest;
 
-env2d_uiobject::env2d_uiobject() : empty_before(true), show(true) {}
+env2d_uiobject::env2d_uiobject()
+    : empty_before(true), show(true), dirty(true) {}
 
 void env2d_uiobject::fill(U16 _w, U16 _h, U16 _x, U16 _y, const char *path) {
   assert(empty_before);
@@ -19,9 +20,13 @@ void env2d_uiobject::fill(U16 _w, U16 _h, U16 _x, U16 _y, const char *path) {
     surf =
         SDL_CreateRGBSurfaceWithFormat(0, _w, _h, 32, SDL_PIXELFORMAT_RGBA8888);
   }
+  dirty = true;
 }
 
-void env2d_uiobject::tick() {}
+void env2d_uiobject::tick() {
+  if (!show || !dirty)
+    return;
+}
 
 env2d_uiobject::~env2d_uiobject() {
   // if (framebuffer != nullptr) {
@@ -30,7 +35,8 @@ env2d_uiobject::~env2d_uiobject() {
   SDL_FreeSurface(surf);
 }
 
-env2d_conobject::env2d_conobject() : env2d_uiobject(), playback{}, dirty(true) {
+env2d_conobject::env2d_conobject()
+    : env2d_uiobject(), playback{}, curr_prompt{""} {
   // TODO: dynamic fonts
   font = TTF_OpenFont("/usr/share/fonts/gnu-free/FreeMono.otf", 15);
 }
@@ -38,7 +44,6 @@ env2d_conobject::env2d_conobject() : env2d_uiobject(), playback{}, dirty(true) {
 void env2d_conobject::tick() {
   if (!dirty)
     return;
-  dirty = false;
 
   // very sloppy math ahead
   if (playback.empty()) {
@@ -81,11 +86,21 @@ void env2d_conobject::tick() {
   full:
     off += 15;
   }
-  fontsurf = TTF_RenderText_Blended(font, "lua>_", SDL_Color{0, 0, 0, 0xFF});
+  auto prompt = std::string("> ");
+  for (auto i = 48; i != 0; i--) {
+    if (i >= curr_prompt.size()) {
+      continue;
+    }
+    prompt.insert(prompt.begin() + 2, curr_prompt.at(i - 1));
+  }
+  fontsurf =
+      TTF_RenderText_Blended(font, prompt.c_str(), SDL_Color{0, 0, 0, 0xFF});
   if (fontsurf == nullptr) {
     log(severity::error, {"TTF: ", TTF_GetError()});
   }
   assert(fontsurf != nullptr);
   SDL_Rect r{.x = 0, .y = off, .w = fontsurf->w, .h = fontsurf->h};
   SDL_BlitSurface(fontsurf, nullptr, surf, &r);
+
+  dirty = true;
 }
