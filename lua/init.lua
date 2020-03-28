@@ -2,7 +2,8 @@ celerytest = {
     con = {
         info = __con_info,
         warn = __con_warn,
-        error = __con_error
+        error = __con_error,
+        toggle = __con_toggle,
     },
     sim = {
         create = __sim_create,
@@ -19,6 +20,9 @@ celerytest = {
             geometry = 3,
             vertex = 4,
         },
+    },
+    kmaps = {
+        declare = __kmaps_declare,
     }
 }
 -- shaders
@@ -72,3 +76,5 @@ celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
     zlevel = 1,
     image = "lib/CGEPlay.png",
 })
+
+celerytest.kmaps.declare(string.byte('`',1), "__con_toggle")

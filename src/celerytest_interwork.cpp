@@ -121,6 +121,9 @@ bool interwork::tick() {
   if (event.type == SDL_KEYUP) {
     if (event.key.keysym.sym == SDLK_ESCAPE) {
       return false;
+    } else {
+      auto key = event.key.keysym.sym;
+      lua_ctx->kmaps_call(key);
     }
   }
   return event.type != SDL_QUIT;

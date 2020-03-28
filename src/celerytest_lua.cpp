@@ -7,6 +7,7 @@ using namespace celerytest;
 const auto root = std::filesystem::path(".");
 auto env2d = std::unique_ptr<std::vector<U32>>{nullptr};
 auto con2d = std::unique_ptr<U32>{nullptr};
+auto kmaps = std::unique_ptr<kmaps_t>{nullptr};
 
 void celerytest::con2d_log(celerytest::severity s,
                            std::forward_list<std::string_view> &&msg) {
@@ -46,7 +47,7 @@ U32 celerytest::get_con2d() {
     console->fill(480, 360, 0, 0, nullptr);
     // OHNO: could be dangerous
     console->dirty = true;
-    console->show = true;
+    console->show = false;
     get_env2d()->emplace_back(*con2d);
     log(severity::info, {"Created 2D console..."});
   }
@@ -64,6 +65,10 @@ lua::lua() {
   lua_setglobal(L, "__con_warn");
   lua_pushcfunction(L, con_error);
   lua_setglobal(L, "__con_error");
+  lua_pushcfunction(L, con_toggle);
+  lua_setglobal(L, "__con_toggle");
+  lua_pushcfunction(L, kmaps_declare);
+  lua_setglobal(L, "__kmaps_declare");
   lua_pushcfunction(L, sim_create);
   lua_setglobal(L, "__sim_create");
   lua_pushcfunction(L, sim_delete);
@@ -118,6 +123,40 @@ int lua::con_error(lua_State *L) {
   auto string = luaL_checkstring(L, 1);
   log(severity::error, {"script: ", string});
   return 0;
+}
+
+int lua::con_toggle(lua_State *L) {
+  auto ptr = dynamic_cast<env2d_uiobject *>(sim_reference(get_con2d()));
+  if (ptr->show) {
+    ptr->show = false;
+  } else {
+    ptr->show = true;
+  }
+  return 0;
+}
+
+kmaps_t *get_kmap() { 
+  if(!kmaps) {
+    log(severity::warn, {"Making kmap..."});
+    kmaps = std::make_unique<kmaps_t>();
+  }
+  return kmaps.get();
+}
+
+int lua::kmaps_declare(lua_State *L) {
+  auto key = luaL_checkinteger(L, 1);
+  auto event = luaL_checkstring(L, 2);
+  log(severity::warn, {"Binding keycode: ", std::to_string(key)});
+  get_kmap()->insert_or_assign(key, std::string_view{event});
+  return 0;
+}
+
+void lua::kmaps_call(SDL_Keycode keycode) {
+  auto &&key = get_kmap()->find(keycode);
+  if(key != get_kmap()->end()) {
+    lua_getglobal(L, key->second.c_str());
+    lua_call(L, 0, 0);
+  }
 }
 
 int lua::sim_create(lua_State *L) {
@@ -184,7 +223,7 @@ int lua::sim_create(lua_State *L) {
     }
     case 6: {
       lua_getfield(L, 3, "is_main");
-      auto is_main = lua_isboolean(L, -1);
+      auto is_main = lua_toboolean(L, -1);
       lua_pop(L, 1);
       auto ref = celerytest::sim_reference(what);
       assert(ref->get_type() == celerytest::sim_types::env3duiobject);
