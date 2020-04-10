@@ -9,7 +9,8 @@ void celerytest::check_sdl_error() {
 }
 
 interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
-    : w{_w}, h{_h}, fullscreen{_fullscreen}, framebuffer{new U32[_w * _h]} {
+    : w{_w}, h{_h}, fullscreen{_fullscreen}, framebuffer{new U32[_w * _h]},
+      ticks{0}, t0{std::chrono::high_resolution_clock::now()} {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -102,7 +103,7 @@ bool interwork::tick() {
       SDL_GetRGBA(*reinterpret_cast<U32 *>(pixels + index), surf->format, &sr,
                   &sg, &sb, &sa);
       framebuffer[i * w + j] = (U32(sa) << 0x18) | (U32(sb) << 0x10) |
-                                (U32(sg) << 0x08) | (U32(sr) << 0x00);
+                               (U32(sg) << 0x08) | (U32(sr) << 0x00);
     }
   }
   SDL_UnlockSurface(surf);
@@ -117,6 +118,16 @@ bool interwork::tick() {
   glBlitFramebuffer(0, 0, w, h, 0, h, w, 0, GL_COLOR_BUFFER_BIT, GL_NEAREST);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+  ticks++;
+  auto t1 = std::chrono::high_resolution_clock::now();
+  auto time =
+      std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
+  if (time > 1000) {
+    log(severity::info, {std::to_string(ticks), "fps"});
+    ticks = 0;
+    t0 = std::chrono::high_resolution_clock::now();
+  }
+
   SDL_GL_SwapWindow(window);
 
   // If true, we keep ticking. If false, quit.
@@ -128,6 +139,7 @@ bool interwork::tick() {
       lua_ctx->kmaps_call(lua_ctx->L, key);
     }
   }
+
   return event.type != SDL_QUIT;
 }
 

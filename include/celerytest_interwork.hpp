@@ -15,6 +15,8 @@ struct interwork {
   // OpenGL ALSO forces you to handle blitting weirdly
   GLuint fbo2d, tex2d;
   U32 *framebuffer;
+  U32 ticks;
+  std::chrono::time_point<std::chrono::high_resolution_clock> t0;
   bool fullscreen;
   bool tick();
   interwork(U16, U16, bool);
