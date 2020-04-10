@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <forward_list>
+#include <future>
 #include <initializer_list>
 #include <memory>
 #include <string_view>

@@ -59,6 +59,8 @@
         "forward_list": "cpp",
         "bitset": "cpp",
         "hash_map": "cpp",
-        "filesystem": "cpp"
-    }
+        "filesystem": "cpp",
+        "future": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }

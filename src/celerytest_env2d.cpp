@@ -52,7 +52,7 @@ void env2d_conobject::tick() {
   U8 sr, sg, sb, sa;
   auto off = 0;
   auto size = S32(playback.size());
-  SDL_FillRect(surf, nullptr, 0xFFFFFFDD);
+  SDL_FillRect(surf, nullptr, 0xFFFFFFCC);
   for (S32 i = size - 23; i < size; i++) {
     if (i < 0) {
       goto full;
@@ -88,7 +88,7 @@ void env2d_conobject::tick() {
   }
   auto prompt = std::string("> ");
   for (auto i = 48; i != 0; i--) {
-    if (i >= curr_prompt.size()) {
+    if (i > curr_prompt.size()) {
       continue;
     }
     prompt.insert(prompt.begin() + 2, curr_prompt.at(i - 1));

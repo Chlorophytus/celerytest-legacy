@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # You can change the name of the project
-project(celerytest VERSION 0.1.0.25)
+project(celerytest VERSION 0.1.0.26)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in include/${PROJECT_NAME}_cfg.hpp)
@@ -14,6 +14,8 @@ find_package(GLEW REQUIRED)
 find_package(Lua REQUIRED)
 # Find the SDL2 package
 find_package(SDL2 REQUIRED)
+# Find threading
+find_package(Threads REQUIRED)
 
 # GLEW, Lua, SDL2 headers
 include_directories(
@@ -41,4 +43,4 @@ target_link_libraries(${PROJECT_NAME}
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${LUA_LIBRARIES}
-    ${SDL2_LIBRARIES} SDL2_image SDL2_ttf SDL2_net SDL2) 
+    ${SDL2_LIBRARIES} Threads::Threads SDL2_image SDL2_ttf SDL2_net SDL2) 

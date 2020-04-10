@@ -17,7 +17,7 @@ struct interwork {
   U32 *framebuffer;
   U32 ticks;
   std::chrono::time_point<std::chrono::high_resolution_clock> t0;
-  bool fullscreen;
+  bool fullscreen, input_enabled;
   bool tick();
   interwork(U16, U16, bool);
   ~interwork();

@@ -59,7 +59,7 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   glEnableVertexAttribArray(10);
   glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(F32), 0x0);
 #endif
-  surf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA8888);
+  surf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_ABGR8888);
   glGenTextures(1, &tex2d);
   glGenFramebuffers(1, &fbo2d);
   lua_ctx = std::make_unique<lua>();
@@ -71,17 +71,17 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
 }
 
 bool interwork::tick() {
-  SDL_Event event;
-  SDL_PollEvent(&event);
 
   // TODO: Insert some OpenGL calls here
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  bool dirty = false;
   // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   for (auto &&ui_elemid : *get_env2d()) {
     auto &&ui_elem = celerytest::sim_reference(ui_elemid);
     assert(ui_elem->get_type() == celerytest::sim_types::env2duiobject);
     auto &&casted = dynamic_cast<celerytest::env2d_uiobject *>(ui_elem);
+
     casted->tick();
     if (!casted->show) {
       continue;
@@ -89,24 +89,25 @@ bool interwork::tick() {
     SDL_Rect r{.x = casted->x, .y = casted->y, .w = casted->w, .h = casted->h};
     if (casted->dirty) {
       SDL_BlitSurface(casted->surf, nullptr, surf, &r);
+      dirty = true;
     }
   }
   // bind...
   glBindTexture(GL_TEXTURE_2D, tex2d);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo2d);
-  SDL_LockSurface(surf);
   auto pixels = reinterpret_cast<U8 *>(surf->pixels);
-  U8 sr, sg, sb, sa;
-  for (auto i = 0; i < h; i++) {
-    for (auto j = 0; j < w; j++) {
-      auto index = i * surf->pitch + (j << 2);
-      SDL_GetRGBA(*reinterpret_cast<U32 *>(pixels + index), surf->format, &sr,
-                  &sg, &sb, &sa);
-      framebuffer[i * w + j] = (U32(sa) << 0x18) | (U32(sb) << 0x10) |
-                               (U32(sg) << 0x08) | (U32(sr) << 0x00);
+  if (dirty) {
+    SDL_LockSurface(surf);
+    for (auto i = 0; i < h; i++) {
+      for (auto j = 0; j < w; j++) {
+        auto index = i * surf->pitch + (j << 2);
+        // HA!
+        framebuffer[i * w + j] = *reinterpret_cast<U32 *>(pixels + index);
+      }
     }
+    SDL_UnlockSurface(surf);
+    dirty = false;
   }
-  SDL_UnlockSurface(surf);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                framebuffer);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -131,16 +132,71 @@ bool interwork::tick() {
   SDL_GL_SwapWindow(window);
 
   // If true, we keep ticking. If false, quit.
-  if (event.type == SDL_KEYUP) {
-    if (event.key.keysym.sym == SDLK_ESCAPE) {
-      return false;
-    } else {
-      auto key = event.key.keysym.sym;
-      lua_ctx->kmaps_call(lua_ctx->L, key);
+  SDL_Event event;
+  SDL_PollEvent(&event);
+  switch (event.type) {
+  case SDL_TEXTINPUT:
+  case SDL_KEYDOWN:
+  case SDL_KEYUP: {
+    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
+    auto cast_key = event.key;
+    if (event.type == SDL_KEYUP) {
+      switch (cast_key.keysym.sym) {
+      case '`': {
+        con->curr_prompt.pop_back();
+        if (con->show) {
+          con->show = false;
+        } else {
+          con->show = true;
+        }
+        return true;
+      }
+      case SDLK_BACKSPACE: {
+        if (con->curr_prompt.empty())
+          return true;
+        con->curr_prompt.pop_back();
+        return true;
+      }
+      case SDLK_ESCAPE: {
+        return false;
+      }
+      case SDLK_RETURN: {
+        if (!con->curr_prompt.empty()) {
+          auto err = luaL_dostring(lua_ctx->L, con->curr_prompt.c_str());
+          log(severity::info, {"lua> ", con->curr_prompt});
+          if (err) {
+            auto str = lua_tostring(lua_ctx->L, -1);
+            log(severity::error, {str});
+            lua_pop(lua_ctx->L, -1);
+          }
+          con->curr_prompt = std::string{" "};
+          con->dirty = true;
+        }
+        return true;
+      }
+      default: {
+        if (!con->show) {
+          lua_ctx->kmaps_call(lua_ctx->L, cast_key.keysym.sym,
+                              cast_key.type == SDL_KEYDOWN);
+          return true;
+        }
+      }
+      }
     }
+    if (event.type == SDL_TEXTINPUT) {
+      auto cast_text = event.text;
+      con->curr_prompt += cast_text.text;
+    }
+    return true;
   }
-
-  return event.type != SDL_QUIT;
+  case SDL_QUIT: {
+    return false;
+  }
+  default: {
+    return true;
+  }
+  }
+  assert(false);
 }
 
 interwork::~interwork() {

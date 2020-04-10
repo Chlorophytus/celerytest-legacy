@@ -13,10 +13,10 @@ int main(int argc, char **argv) {
   auto fullscreen = bool((argc == 4) ? std::atoi(argv[3]) != 0 : false);
 
   if (w == 0) {
-    w = 640;
+    w = 800;
   }
   if (h == 0) {
-    h = 480;
+    h = 600;
   }
   celerytest::log(
       celerytest::severity::info,
@@ -37,24 +37,13 @@ int main(int argc, char **argv) {
   }
   assert(init == 0);
   celerytest::sim_init();
+  SDL_StartTextInput();
   auto inter = std::make_unique<celerytest::interwork>(w, h, fullscreen);
-  #if 0
-  auto e = 1;
-  for (auto i = 0; i < 2 << 24; i++) {
-    if (e == i) {
-      celerytest::log(celerytest::severity::info, {"object creation timing ",
-                      std::to_string(e), "..."});
-      e <<= 1;
-    }
-
-    celerytest::sim_create_hint(1, i);
-  }
-  celerytest::log(celerytest::severity::info, {"object creation timing done"});
-  #endif
   while (inter->tick())
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
   celerytest::sim_deinit();
+  SDL_StopTextInput();
   // Quit SDL lastly, **LASTLY**.
   IMG_Quit();
   TTF_Quit();

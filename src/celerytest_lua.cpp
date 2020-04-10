@@ -139,55 +139,18 @@ int lua::kmaps_declare(lua_State *L) {
   return 0;
 }
 
-void lua::kmaps_call(lua_State *L, SDL_Keycode keycode) {
-  switch (keycode) {
-  case '`': {
+void lua::kmaps_call(lua_State *L, SDL_Keycode keycode, bool hold) {
+  if (get_kmap()->count(keycode) > 0) {
+    auto &&key = get_kmap()->find(keycode);
+    lua_getglobal(L, key->second.c_str());
+    lua_pushboolean(L, hold);
+    lua_call(L, 1, 0);
+  } else {
     auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
     if (con->show) {
-      con->show = false;
-    } else {
-      con->show = true;
-    }
-    break;
-  }
-  case SDLK_BACKSPACE: {
-    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
-    if (con->show && !con->curr_prompt.empty()) {
-      con->curr_prompt.pop_back();
+      con->curr_prompt.push_back(keycode);
       con->dirty = true;
     }
-    break;
-  }
-  case SDLK_RETURN: {
-    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
-    if (con->show && !con->curr_prompt.empty()) {
-      lua_pushstring(L, con->curr_prompt.c_str());
-      con->curr_prompt = "";
-      if (lua_pcall(L, 0, 0, 0) != 0) {
-        auto err = std::string{lua_tostring(L, -1)};
-        lua_pop(L, 1);
-        log(severity::error, {"lua: ", err});
-      }
-      con->dirty = true;
-    }
-    break;
-  }
-  default: {
-    if ((keycode & (1 << 30)) != 0) {
-      if (get_kmap()->count(keycode) > 0) {
-        auto &&key = get_kmap()->find(keycode);
-        lua_getglobal(L, key->second.c_str());
-        lua_call(L, 0, 0);
-      }
-    } else {
-      auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
-      if (con->show) {
-        con->curr_prompt.push_back(keycode);
-        con->dirty = true;
-      }
-    }
-    break;
-  }
   }
 }
 

@@ -17,7 +17,7 @@ struct lua {
 
   // KMaps
   static int kmaps_declare(lua_State *);
-  void kmaps_call(lua_State *, SDL_Keycode);
+  void kmaps_call(lua_State *, SDL_Keycode, bool);
 
   // Sim
   static int sim_create(lua_State *);
