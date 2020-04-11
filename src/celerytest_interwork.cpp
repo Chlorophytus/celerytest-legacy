@@ -59,6 +59,20 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   glEnableVertexAttribArray(10);
   glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(F32), 0x0);
 #endif
+
+  // vertex binder
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+  glGenBuffers(1, &ebo);
+  glGenBuffers(1, &vbo);
+
+  // construct the Shader Storage TerrainMap
+  glGenBuffers(1, &ssbo_terrain);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_terrain);
+
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glEnableVertexAttribArray(10);
+  glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 0x4 * sizeof(F32), 0x00);
   surf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_ABGR8888);
   glGenTextures(1, &tex2d);
   glGenFramebuffers(1, &fbo2d);
@@ -68,6 +82,7 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   get_con2d();
   emplace_logger(&con2d_log);
   log(severity::warn, {"2D console hooked."});
+  mission = new mission_flat();
 }
 
 bool interwork::tick() {
@@ -76,7 +91,16 @@ bool interwork::tick() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   bool dirty = false;
-  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+  if (mission->tick()) {
+    auto size = mission->get_terrain_pitch();
+    size *= size;
+    auto data = mission->get_terrain_data();
+    assert(size == data.size());
+    glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(F32), data.data(), GL_DYNAMIC_READ);
+    glDrawElements(GL_POINTS, size, GL_UNSIGNED_INT, 0);
+  }
+
   for (auto &&ui_elemid : *get_env2d()) {
     auto &&ui_elem = celerytest::sim_reference(ui_elemid);
     assert(ui_elem->get_type() == celerytest::sim_types::env2duiobject);
@@ -200,8 +224,13 @@ bool interwork::tick() {
 }
 
 interwork::~interwork() {
-  // glDisableVertexAttribArray(10);
+  glDisableVertexAttribArray(10); // P0
+  delete mission;
   delete[] framebuffer;
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &ebo);
+  glDeleteBuffers(1, &vbo);
+  glDeleteBuffers(1, &ssbo_terrain);
   glDeleteFramebuffers(1, &fbo2d);
   glDeleteTextures(1, &tex2d);
   SDL_FreeSurface(surf);

@@ -29,14 +29,46 @@ celerytest = {
 local vert = celerytest.sim.create(celerytest.sim.types.env3dshaderopaque, nil, {
     type = celerytest.sim.shaders.vertex,
     source = [[#version 450 core
-layout(location = 10) in vec2 vert;
+layout(location = 10) in vec4 verts;
 out vec4 frag_paint;
 void main() {
     // Pass d's z val for Z feedback, thus allowing us to discard.
     frag_paint = vec4(1.0f, 0.0f, 1.0f, 0.0f);
-    gl_Position =  vec4(vert.xy, 0.0f, 1.0f);
+    gl_Position = vec4(verts.xyz, 1.0f);
 }
 ]]})
+local geom = celerytest.sim.create(celerytest.sim.types.env3dshaderopaque, nil, {
+    type = celerytest.sim.shaders.geometry,
+    source = [[#version 450 core
+layout(std430, binding = 20) buffer vert_tags {
+    uint pitch;
+    float data[];
+};
+layout(points) in;
+layout(triangle_strip) out;
+void main() {
+    gl_Position = gl_in[0].gl_Position + vec4(-0.5f, vert_tags.data[0], -0.5f, 0.0f);
+    EmitVertex();
+    
+    gl_Position = gl_in[1].gl_Position + vec4(-0.5f, vert_tags.data[1], 0.5f, 0.0f);
+    EmitVertex();
+
+    gl_Position = gl_in[2].gl_Position + vec4(0.5f, vert_tags.data[2], -0.5f, 0.0f);
+    EmitVertex();
+    EndPrimitive();
+
+    gl_Position = gl_in[3].gl_Position + vec4(0.5f, vert_tags.data[3], 0.5f, 0.0f);
+    EmitVertex();
+    
+    gl_Position = gl_in[1].gl_Position + vec4(-0.5f, vert_tags.data[1], 0.5f, 0.0f);
+    EmitVertex();
+
+    gl_Position = gl_in[2].gl_Position + vec4(0.5f, vert_tags.data[2], -0.5f, 0.0f);
+    EmitVertex();
+    EndPrimitive();
+}
+]]
+})
 local frag = celerytest.sim.create(celerytest.sim.types.env3dshaderopaque, nil, {
     type = celerytest.sim.shaders.fragment,
     source = [[#version 450 core
