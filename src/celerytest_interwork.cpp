@@ -40,6 +40,12 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
                                               glewGetErrorString(e))});
   }
   assert(e == GLEW_OK);
+
+  glGenVertexArrays(1, &vao3d);
+  glBindVertexArray(vao3d);
+  glGenBuffers(1, &vbo3d);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(F32), 0x0);
 #if 0
   F32 verts[8]{
       -0.5f, -0.5f, // 0
@@ -66,6 +72,7 @@ interwork::interwork(U16 _w, U16 _h, bool _fullscreen)
   lua_ctx->load("init.lua");
 
   get_con2d();
+  get_mission(mission_types::null);
   emplace_logger(&con2d_log);
   log(severity::warn, {"2D console hooked."});
 }
@@ -76,7 +83,30 @@ bool interwork::tick() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   bool dirty = false;
-  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  assert(celerytest::get_missiontype() != nullptr);
+  auto mtype = *celerytest::get_missiontype();
+  auto &&rawmission = celerytest::sim_reference(celerytest::get_mission(mtype));
+  auto &&mission = dynamic_cast<celerytest::mission_null *>(rawmission);
+  if (mission->tick()) {
+    auto num_elems_in_mission = mission->get_terrain_pitch();
+    num_elems_in_mission *= num_elems_in_mission;
+    if (num_elems_in_mission > 0) {
+      auto verts = mission->get_terrain_data();
+      auto raw_vertex_data = std::vector<F32>{};
+      for (auto &&vert : verts) {
+        raw_vertex_data.emplace_back(vert.x);
+        raw_vertex_data.emplace_back(vert.y);
+        raw_vertex_data.emplace_back(vert.z);
+        raw_vertex_data.emplace_back(vert.w);
+      }
+      glBindBuffer(GL_ARRAY_BUFFER, vbo3d);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(F32) * raw_vertex_data.size(),
+                   raw_vertex_data.data(), GL_STATIC_DRAW);
+      glDrawElements(GL_TRIANGLES, num_elems_in_mission * 2, GL_UNSIGNED_INT,
+                     0);
+    }
+  }
+  //
   for (auto &&ui_elemid : *get_env2d()) {
     auto &&ui_elem = celerytest::sim_reference(ui_elemid);
     assert(ui_elem->get_type() == celerytest::sim_types::env2duiobject);
@@ -200,7 +230,7 @@ bool interwork::tick() {
 }
 
 interwork::~interwork() {
-  // glDisableVertexAttribArray(10);
+  glDisableVertexAttribArray(0);
   delete[] framebuffer;
   glDeleteFramebuffers(1, &fbo2d);
   glDeleteTextures(1, &tex2d);

@@ -1,6 +1,7 @@
 #pragma once
 #include "celerytest.hpp"
 #include "celerytest_log.hpp"
+#include "celerytest_mission.hpp"
 namespace celerytest {
 
 struct lua {
@@ -22,7 +23,12 @@ struct lua {
   // Sim
   static int sim_create(lua_State *);
   static int sim_delete(lua_State *);
+
+  // Mission
+  static int mission_change(lua_State *);
 };
+U32 get_mission(mission_types);
+mission_types *get_missiontype();
 std::vector<U32> *get_env2d();
 U32 get_con2d();
 kmaps_t *get_kmaps();

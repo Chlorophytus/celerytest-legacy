@@ -6,6 +6,7 @@ enum class sim_types : U8 {
   object,
   env2duiobject,
   env3duiobject,
+  missionobject,
 };
 struct sim_object {
   virtual const sim_types get_type() const { return sim_types::object; }

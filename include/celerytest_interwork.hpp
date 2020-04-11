@@ -11,7 +11,7 @@ struct interwork {
   std::unique_ptr<lua> lua_ctx;
   U16 w, h;
 
-  GLuint ebo_test, vao_test, vbo_test;
+  GLuint vao3d, vbo3d;
   // OpenGL ALSO forces you to handle blitting weirdly
   GLuint fbo2d, tex2d;
   U32 *framebuffer;

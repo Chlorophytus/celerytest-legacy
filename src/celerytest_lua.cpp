@@ -7,6 +7,8 @@ using namespace celerytest;
 const auto root = std::filesystem::path(".");
 auto env2d = std::unique_ptr<std::vector<U32>>{nullptr};
 auto con2d = std::unique_ptr<U32>{nullptr};
+auto mission = std::unique_ptr<U32>{nullptr};
+auto missiontype = std::unique_ptr<mission_types>{nullptr};
 auto kmaps = std::unique_ptr<kmaps_t>{nullptr};
 
 void celerytest::con2d_log(celerytest::severity s,
@@ -54,6 +56,43 @@ U32 celerytest::get_con2d() {
   return *con2d;
 }
 
+U32 celerytest::get_mission(mission_types type) {
+  if (mission &&
+      dynamic_cast<mission_null *>(celerytest::sim_reference(*mission))
+              ->get_subtype() != type) {
+    log(severity::info, {"Tearing down old mission for a new one..."});
+    sim_delete(*mission);
+  }
+  // the above line trips this anyways
+  if (!mission) {
+    log(severity::info, {"Creating a new mission..."});
+    auto what = U32{0};
+    switch (type) {
+    case mission_types::null:
+      missiontype = std::make_unique<mission_types>(mission_types::null);
+      what = sim_create(16);
+      break;
+    case mission_types::flat:
+      missiontype = std::make_unique<mission_types>(mission_types::flat);
+      what = sim_create(17);
+      break;
+    case mission_types::terrain:
+      missiontype = std::make_unique<mission_types>(mission_types::terrain);
+      what = sim_create(18);
+      break;
+    case mission_types::voxel:
+      missiontype = std::make_unique<mission_types>(mission_types::voxel);
+      what = sim_create(19);
+      break;
+    }
+    mission = std::make_unique<U32>(what);
+  } else {
+  }
+  return *mission;
+}
+
+mission_types *celerytest::get_missiontype() { return missiontype.get(); }
+
 lua::lua() {
   L = luaL_newstate();
   assert(L);
@@ -71,6 +110,8 @@ lua::lua() {
   lua_setglobal(L, "__sim_create");
   lua_pushcfunction(L, sim_delete);
   lua_setglobal(L, "__sim_delete");
+  lua_pushcfunction(L, mission_change);
+  lua_setglobal(L, "__mission_change");
 }
 
 void lua::load(const char *path) {
@@ -103,6 +144,25 @@ void lua::load(const char *path) {
     break;
   }
   assert(err == LUA_OK);
+}
+
+int lua::mission_change(lua_State *L) {
+  auto mtype = luaL_checkinteger(L, 1);
+  switch (mtype) {
+  case 0:
+    get_mission(mission_types::null);
+    break;
+  case 1:
+    get_mission(mission_types::flat);
+    break;
+  case 2:
+    get_mission(mission_types::terrain);
+    break;
+  case 3:
+    get_mission(mission_types::voxel);
+    break;
+  }
+  return 0;
 }
 
 int lua::con_info(lua_State *L) {

@@ -2,6 +2,7 @@
 #include "../include/celerytest_env2d.hpp"
 #include "../include/celerytest_env3d.hpp"
 #include "../include/celerytest_log.hpp"
+#include "../include/celerytest_mission.hpp"
 using namespace celerytest;
 
 std::unique_ptr<sim_keys_t> sim_keys{nullptr};
@@ -51,15 +52,18 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
     ;
   (*sim_keys)[where] = true;
   switch (Ltype) {
+    // UI objects and stuff
   case 1:
     sim_vals->try_emplace(where, new sim_object());
     return where;
   case 2:
-    log(severity::error, {"You are creating a deprecated object (shaderobject). Stop."});
+    log(severity::error,
+        {"You are creating a deprecated object (shaderobject). Stop."});
     assert(false);
     return where;
   case 3:
-    log(severity::error, {"You are creating a deprecated object (shaderlist). Stop."});
+    log(severity::error,
+        {"You are creating a deprecated object (shaderlist). Stop."});
     assert(false);
     return where;
   case 4:
@@ -73,6 +77,19 @@ U32 celerytest::sim_create_hint(int Ltype, U32 hint) {
     return where;
   case 7:
     sim_vals->try_emplace(where, new env3d_shaderopaque());
+    return where;
+    // Mission objects
+  case 16:
+    sim_vals->try_emplace(where, new mission_null());
+    return where;
+  case 17:
+    sim_vals->try_emplace(where, new mission_flat());
+    return where;
+  case 18:
+    sim_vals->try_emplace(where, new mission_terrain());
+    return where;
+  case 19:
+    sim_vals->try_emplace(where, new mission_voxel());
     return where;
   default:
     log(severity::error,

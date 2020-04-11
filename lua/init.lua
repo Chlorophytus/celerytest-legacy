@@ -23,7 +23,16 @@ celerytest = {
     },
     kmaps = {
         declare = __kmaps_declare,
-    }
+    },
+    mission = {
+        change = __mission_change,
+        types = {
+            null = 0,
+            flat = 1,
+            terrain = 2,
+            voxel = 3,
+        },
+    },
 }
 -- shaders
 local vert = celerytest.sim.create(celerytest.sim.types.env3dshaderopaque, nil, {

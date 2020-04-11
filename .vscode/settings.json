@@ -61,6 +61,5 @@
         "hash_map": "cpp",
         "filesystem": "cpp",
         "future": "cpp"
-    },
-    "C_Cpp.errorSquiggles": "Disabled"
+    }
 }
