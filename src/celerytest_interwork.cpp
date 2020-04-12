@@ -222,6 +222,37 @@ bool interwork::tick() {
   case SDL_QUIT: {
     return false;
   }
+  case SDL_MOUSEBUTTONDOWN:
+  case SDL_MOUSEBUTTONUP: {
+    auto &&con = dynamic_cast<env2d_conobject *>(sim_reference(get_con2d()));
+    if (!con->show) {
+      auto &&env = get_env2d();
+      auto size = env->size();
+      auto pivot = 1;
+      auto cast_mouse = event.button;
+      while (pivot <= size) {
+        auto &&ui_elem = celerytest::sim_reference(env->at(size - pivot));
+        assert(ui_elem->get_type() == celerytest::sim_types::env2duiobject);
+        auto &&casted = dynamic_cast<celerytest::env2d_uiobject *>(ui_elem);
+        if (casted->show) {
+          auto x0 = casted->x;
+          auto x1 = casted->x + casted->w;
+          auto y0 = casted->y;
+          auto y1 = casted->y + casted->h;
+          if (y0 < cast_mouse.y && y1 > cast_mouse.y && x0 < cast_mouse.x && x1 > cast_mouse.x) {
+            if(casted->on_mouse != nullptr) {
+              lua_getglobal(lua_ctx->L, casted->on_mouse);
+              lua_pushboolean(lua_ctx->L, cast_mouse.state == SDL_PRESSED);
+              lua_pcall(lua_ctx->L, 1, 0, 0);
+            }
+            return true;
+          }
+        }
+        pivot++;
+      }
+    }
+    return true;
+  }
   default: {
     return true;
   }

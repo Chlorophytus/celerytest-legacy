@@ -17,6 +17,9 @@ struct env2d_uiobject : sim_object {
   virtual void tick();
 
   SDL_Surface *surf;
+
+  const char *on_mouse;
+
   env2d_uiobject();
   ~env2d_uiobject();
 };

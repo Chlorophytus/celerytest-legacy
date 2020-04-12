@@ -254,6 +254,11 @@ int lua::sim_create(lua_State *L) {
       assert(ref->get_type() == celerytest::sim_types::env2duiobject);
       auto &&casted = dynamic_cast<celerytest::env2d_uiobject *>(ref);
 
+      lua_getfield(L, 3, "onmouse");
+      if(lua_isstring(L, -1)) {
+        casted->on_mouse = lua_tostring(L, -1);
+      }
+
       lua_getfield(L, 3, "image");
       if (!lua_isnoneornil(L, -1)) {
         // since our image already has width and height vals just use dummy

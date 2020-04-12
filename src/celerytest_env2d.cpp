@@ -2,7 +2,7 @@
 using namespace celerytest;
 
 env2d_uiobject::env2d_uiobject()
-    : empty_before(true), show(true), dirty(true) {}
+    : empty_before(true), show(true), dirty(true), on_mouse(nullptr) {}
 
 void env2d_uiobject::fill(U16 _w, U16 _h, U16 _x, U16 _y, const char *path) {
   assert(empty_before);

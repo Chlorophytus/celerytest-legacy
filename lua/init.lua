@@ -34,6 +34,12 @@ celerytest = {
         },
     },
 }
+
+-- callbacks
+function cgeplay_onmouse_cb(state)
+    print("Unimplemented click event " .. tostring(state))
+end
+
 -- shaders
 local vert = celerytest.sim.create(celerytest.sim.types.env3dshaderopaque, nil, {
     type = celerytest.sim.shaders.vertex,
@@ -84,4 +90,7 @@ celerytest.sim.create(celerytest.sim.types.env2duiobject, nil, {
     y = 130,
     zlevel = 1,
     image = "lib/CGEPlay.png",
+
+    -- Callbacks should be strings since there's a quirk in the Lua interface
+    onmouse = "cgeplay_onmouse_cb",
 })
