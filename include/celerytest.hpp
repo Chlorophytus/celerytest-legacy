@@ -9,6 +9,7 @@
 // RATIONALE: In case version retrieval is needed
 #include "celerytest_cfg.hpp"
 
+#include <array>
 #include <bitset>
 #include <cassert>
 #include <chrono>

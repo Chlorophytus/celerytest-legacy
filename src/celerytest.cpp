@@ -3,6 +3,7 @@
 #include "../include/celerytest_log.hpp"
 #include "../include/celerytest_lua.hpp"
 #include "../include/celerytest_sim.hpp"
+#include "../include/celerytest_sound.hpp"
 
 int main(int argc, char **argv) {
   celerytest::log(celerytest::severity::info,
@@ -37,11 +38,12 @@ int main(int argc, char **argv) {
   }
   assert(init == 0);
   celerytest::sim_init();
+  celerytest::sound_init();
   SDL_StartTextInput();
   auto inter = std::make_unique<celerytest::interwork>(w, h, fullscreen);
   while (inter->tick())
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
+  celerytest::sound_deinit();
   celerytest::sim_deinit();
   SDL_StopTextInput();
   // Quit SDL lastly, **LASTLY**.
