@@ -26,7 +26,7 @@ void celerytest::sound_init() {
   want.freq = 11025;
   want.format = AUDIO_U8;
   want.channels = 2;
-  want.samples = 2048;
+  want.samples = 4096;
   want.callback = &celerytest::sound_callback;
   want.userdata = engine.get();
   SDL_OpenAudio(&want, &have);
