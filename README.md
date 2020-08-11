@@ -13,10 +13,12 @@ $ celerytest w h f
 
 ## Okay so...
 ### ...what do I run/make games on?
-- CPU minimum: Pentium Silver N5000 (a CPU with AVX would be nice)
+#### Compute-based Raytracing OFF
+- CPU minimum: A Pentium Silver or Celeron (a CPU with AVX would be nice)
 - RAM minimum: 1-2GiB (at least 4GB would be nice)
 - GPU minimum: Intel UHD6xx Graphics (a video card would be nice)
-
+#### Compute-based Raytracing ON
+- GPU: Have an AMD Vega-based GPU handy.
 ### ...how do I run this?
 - CMake 3.15.x required
 - SDL2 (Base / TTF / Image / Net)
