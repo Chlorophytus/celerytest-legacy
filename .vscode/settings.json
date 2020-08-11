@@ -1,5 +1,4 @@
 {
-    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
     "files.associations": {
         "array": "cpp",
         "atomic": "cpp",
@@ -60,6 +59,12 @@
         "bitset": "cpp",
         "hash_map": "cpp",
         "filesystem": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "set": "cpp",
+        "iostream": "cpp",
+        "ranges": "cpp",
+        "stop_token": "cpp"
     }
 }

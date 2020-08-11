@@ -12,17 +12,15 @@
 #include <array>
 #include <bitset>
 #include <cassert>
-#include <chrono>
 #include <cstdint>
 #include <cstdio>
+#include <ctime>
 #include <filesystem>
 #include <forward_list>
-#include <future>
 #include <initializer_list>
 #include <memory>
+#include <string>
 #include <string_view>
-#include <thread>
-#include <unordered_map>
 #include <vector>
 
 using U8 = std::uint8_t;
@@ -37,5 +35,3 @@ using S64 = std::int64_t;
 
 using F32 = float;
 using F64 = double;
-
-using kmaps_t = std::unordered_map<SDL_Keycode, std::string>;

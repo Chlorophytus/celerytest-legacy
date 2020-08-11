@@ -104,3 +104,4 @@ _deps
 celerytest
 celerytest_cfg.hpp
 build/
+console.log

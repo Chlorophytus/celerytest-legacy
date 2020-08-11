@@ -1,54 +1,36 @@
 #include "../include/celerytest.hpp"
-#include "../include/celerytest_interwork.hpp"
-#include "../include/celerytest_log.hpp"
-#include "../include/celerytest_lua.hpp"
+#include "../include/celerytest_con.hpp"
 #include "../include/celerytest_sim.hpp"
-#include "../include/celerytest_sound.hpp"
 
 int main(int argc, char **argv) {
-  celerytest::log(celerytest::severity::info,
-                  {"celerytest ", celerytest_VSTRING_FULL});
-  // If you don't specify the Width/Height then I will specify it for you.
-  auto w = U16((argc == 4) ? std::atoi(argv[1]) : 0);
-  auto h = U16((argc == 4) ? std::atoi(argv[2]) : 0);
-  auto fullscreen = bool((argc == 4) ? std::atoi(argv[3]) != 0 : false);
+  auto root = std::filesystem::path{celerytest_SDIR};
+  celerytest::con::init();
+  auto console = new celerytest::con::file_listener{root / "console.log"};
+  auto out = new celerytest::con::stdout_listener{};
+  celerytest::con::attach(console);
+  celerytest::con::attach(out);
 
-  if (w == 0) {
-    w = 800;
-  }
-  if (h == 0) {
-    h = 600;
-  }
-  celerytest::log(
-      celerytest::severity::info,
-      {"using resolution ", std::to_string(w), "x", std::to_string(h)});
+  celerytest::con::log_all(celerytest::con::severity::informational,
+                           {"celerytest ", celerytest_VSTRING_FULL});
+  celerytest::con::log_all(
+      celerytest::con::severity::informational,
+      {"configured ",
+       std::to_string(celerytest::sim::bucket::objects_per_bucket),
+       " objects/bucket"});
+  celerytest::con::log_all(
+      celerytest::con::severity::informational,
+      {"configured ",
+       std::to_string(celerytest::sim::session::buckets_per_session),
+       " buckets/session"});
 
-  if (fullscreen) {
-    celerytest::log(celerytest::severity::info, {"fullscreen = true"});
-  } else {
-    celerytest::log(celerytest::severity::info, {"fullscreen = false"});
-  }
-
-  // SDL will return a non-zero value for failure in initialization.
-  auto init = SDL_Init(SDL_INIT_EVERYTHING);
-  IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
-  TTF_Init();
-  if (init != 0) {
-    celerytest::check_sdl_error();
-  }
-  assert(init == 0);
-  celerytest::sim_init();
-  celerytest::sound_init();
-  SDL_StartTextInput();
-  auto inter = std::make_unique<celerytest::interwork>(w, h, fullscreen);
-  while (inter->tick())
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  celerytest::sound_deinit();
-  celerytest::sim_deinit();
-  SDL_StopTextInput();
-  // Quit SDL lastly, **LASTLY**.
-  IMG_Quit();
-  TTF_Quit();
-  SDL_Quit();
+  celerytest::con::log_all(
+      celerytest::con::severity::informational,
+      {"configured ",
+       std::to_string(celerytest::sim::bucket::objects_per_bucket *
+                      celerytest::sim::session::buckets_per_session),
+       " objects/session"});
+  celerytest::con::deinit();
+  delete out;
+  delete console;
   return 0;
 }

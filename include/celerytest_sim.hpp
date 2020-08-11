@@ -1,35 +1,39 @@
-#pragma once
 #include "celerytest.hpp"
 
 namespace celerytest {
-enum class sim_types : U8 {
-  object,
-  env2duiobject,
-  env3duiobject,
-  missionobject,
+namespace sim {
+enum class types : U16 {
+  sim_object,
 };
-struct sim_object {
-  virtual const sim_types get_type() const { return sim_types::object; }
+struct object {
+  virtual types get_type() { return types::sim_object; }
 };
-// struct sim_shaderobject : sim_object {
-//   virtual const sim_types get_type() const { return sim_types::shaderobject; }
-//   std::unique_ptr<celerytest::shader> primary{nullptr};
-// };
-// struct sim_shaderlist : sim_object {
-//   virtual const sim_types get_type() const { return sim_types::shaderlist; }
-//   std::unique_ptr<celerytest::shader_chain> primary{nullptr};
-// };
-using sim_keys_t = std::bitset<UINT32_MAX>;
-using sim_vals_t = std::unordered_map<U32, sim_object *>;
-void sim_init();
+template <typename T> struct is_object { constexpr static bool value = false; };
+template <> struct is_object<object> { constexpr static bool value = true; };
+// Store a bucket of objects. This makes it modular and easy to sieve.
+// Also it allows us to allocate these objects lazier.
+struct bucket {
+  constexpr static size_t objects_per_bucket = 2 << 7;
+  const bool full();
+  std::bitset<objects_per_bucket> switchboard{false};
+  std::array<std::unique_ptr<object>, objects_per_bucket> data{nullptr};
+};
+struct session {
+  session();
+  lua_State *L = nullptr;
+  constexpr static size_t buckets_per_session = 2 << 15;
+  template <typename T> const static size_t new_object() {
+    static_assert(is_object<T>::value == true);
+    auto bucket_offset = 0;
+    for(auto &&bucket : data) {
+      if(bucket) {
 
-// Little brother `create` is dangerously slow when cache is full.
-U32 sim_create(int);
-// Big brother `create_hint` isn't slow until RAM is too pressured.
-U32 sim_create_hint(int, U32);
-
-sim_object *sim_reference(U32);
-void sim_delete(U32);
-void sim_deinit();
-
+      }
+    }
+    return 0;
+  }
+  std::array<std::unique_ptr<bucket>, buckets_per_session> buckets{nullptr};
+  ~session();
+};
+} // namespace sim
 } // namespace celerytest
