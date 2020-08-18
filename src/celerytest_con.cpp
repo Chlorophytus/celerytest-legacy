@@ -88,7 +88,7 @@ con::file_listener::file_listener(std::filesystem::path &&path)
 
 void con::file_listener::log(const con::severity &severity,
                              const char *fancy_string) {
-  if (static_cast<U8>(current_level) <= static_cast<U8>(severity)) {
+  if (static_cast<U8>(current_level) >= static_cast<U8>(severity)) {
     std::fprintf(file, "%s\n", fancy_string);
   }
 }
@@ -98,7 +98,7 @@ con::file_listener::~file_listener() { std::fclose(file); }
 // === STDOUT LISTENERS =======================================================
 void con::stdout_listener::log(const con::severity &severity,
                                const char *fancy_string) {
-  if (static_cast<U8>(current_level) <= static_cast<U8>(severity)) {
+  if (static_cast<U8>(current_level) >= static_cast<U8>(severity)) {
     std::fprintf(stderr, "%s\n", fancy_string);
   }
 }

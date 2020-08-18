@@ -2,9 +2,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-#include <lua.hpp>
+#include <lua5.3/lua.hpp>
 
 // RATIONALE: In case version retrieval is needed
 #include "../build/include/celerytest_cfg.hpp"
@@ -12,6 +10,7 @@
 #include <array>
 #include <bitset>
 #include <cassert>
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <ctime>

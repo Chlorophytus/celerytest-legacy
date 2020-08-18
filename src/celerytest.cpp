@@ -3,6 +3,8 @@
 #include "../include/celerytest_sim.hpp"
 
 int main(int argc, char **argv) {
+  SDL_Init(SDL_INIT_EVERYTHING);
+
   auto root = std::filesystem::path{celerytest_SDIR};
   celerytest::con::init();
   auto console = new celerytest::con::file_listener{root / "console.log"};
@@ -29,8 +31,16 @@ int main(int argc, char **argv) {
        std::to_string(celerytest::sim::bucket::objects_per_bucket *
                       celerytest::sim::session::buckets_per_session),
        " objects/session"});
+
+  auto session = new celerytest::sim::session{root / "lua", false};
+
+  // Hardcoded session code goes here.
+
+  delete session;
   celerytest::con::deinit();
   delete out;
   delete console;
+
+  SDL_Quit();
   return 0;
 }

@@ -66,5 +66,10 @@
         "iostream": "cpp",
         "ranges": "cpp",
         "stop_token": "cpp"
-    }
+    },
+    "C_Cpp.default.includePath": [
+        "${default}/**",
+        "/usr/include/SDL2/*"
+    ],
+    "C_Cpp.default.cppStandard": "gnu++17"
 }

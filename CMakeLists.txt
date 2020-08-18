@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.18)
 
 # You can change the name of the project
-project(celerytest VERSION 0.2.0.31)
+project(celerytest VERSION 0.2.0.32)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in include/${PROJECT_NAME}_cfg.hpp)
@@ -27,6 +27,7 @@ include_directories(
 # If you add classes you should add them here
 add_executable(${PROJECT_NAME}
     src/${PROJECT_NAME}_con.cpp
+    src/${PROJECT_NAME}_sim.cpp
     src/${PROJECT_NAME}.cpp)
 
 # Enable filthy C++17 extensions
