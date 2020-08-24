@@ -5,13 +5,18 @@ OpenGL 4.5 game engine! Inspired by Torque Game Engine
 
 ## Usage
 ```
-$ celerytest w h f
+$ ./build/celerytest w h f
 ```
 - `w` : width
 - `h` : height
 - `f` : fullscreen flag (1 = on, 0 = off)
 
 ## Okay so...
+### ...devkits!
+I am unable to get/make you a dev kit, but I can point you to what I am planning on targeting: an Odroid-H2+ (Intel Celeron J4115) with 4GB RAM, load Xubuntu LTS 20.04 on it.
+
+However, you could definitely run Celerytest on a new computer. See below.
+
 ### ...what do I run/make games on?
 #### Compute-based Raytracing OFF
 - CPU minimum: A Pentium Silver or Celeron (a CPU with AVX would be nice)
