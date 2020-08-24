@@ -78,9 +78,7 @@ void con::detach(const size_t where) {
   listeners->erase(listeners->begin() + where);
 }
 
-void con::deinit() {
-  listeners = nullptr;
-}
+void con::deinit() { listeners = nullptr; }
 
 // === FILE LISTENERS =========================================================
 con::file_listener::file_listener(std::filesystem::path &&path)

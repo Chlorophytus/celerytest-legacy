@@ -1,6 +1,6 @@
 #include "../include/celerytest_con.hpp"
+
 #include "../include/celerytest_sim.hpp"
-#include "../include/celerytest.hpp"
 
 using namespace celerytest;
 
@@ -13,7 +13,7 @@ sim::session::session(const std::filesystem::path &root, bool &&headless)
     auto e = luaL_dofile(L, (root / "init_server.lua").c_str());
     if (e) {
       con::log_all(con::severity::error,
-                   {"`init_server.lua` failure", lua_tostring(L, -1)});
+                   {"`init_server.lua` failure: ", lua_tostring(L, -1)});
       lua_pop(L, 1);
     }
   } else {
@@ -24,12 +24,10 @@ sim::session::session(const std::filesystem::path &root, bool &&headless)
       lua_pop(L, 1);
     }
   }
-  con::log_all(con::severity::debug, {"creating session success"});
 }
 sim::session::~session() {
-  con::log_all(con::severity::debug, {"deleting a session"});
   lua_close(L);
-  con::log_all(con::severity::debug, {"deleting session success"});
+  con::log_all(con::severity::debug, {"deleting a session"});
 }
 
 void sim::session::delete_object(const size_t idx) {
