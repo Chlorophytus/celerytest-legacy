@@ -1,4 +1,5 @@
 #include "../include/celerytest_con.hpp"
+#include "../include/celerytest_lua.hpp"
 
 #include "../include/celerytest_sim.hpp"
 
@@ -9,7 +10,9 @@ sim::session::session(const std::filesystem::path &root, bool &&headless)
   con::log_all(con::severity::debug, {"creating a session"});
   L = luaL_newstate();
   luaL_openlibs(L);
+  lua::set_all_functions(L);
   if (headless) {
+
     auto e = luaL_dofile(L, (root / "init_server.lua").c_str());
     if (e) {
       con::log_all(con::severity::error,

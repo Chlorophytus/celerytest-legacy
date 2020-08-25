@@ -9,7 +9,7 @@ void con::init() {
   listeners = std::make_unique<std::vector<con::listener *>>();
 }
 
-const size_t con::attach(con::listener *ptr) {
+size_t con::attach(con::listener *ptr) {
   listeners->emplace_back(ptr);
   return listeners->size();
 }

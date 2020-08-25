@@ -1,4 +1,5 @@
 #pragma once
+// Sim (session) helpers
 #include "celerytest.hpp"
 
 namespace celerytest {

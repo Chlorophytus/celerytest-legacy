@@ -1,4 +1,5 @@
 #pragma once
+// Console logging helpers
 #include "celerytest.hpp"
 
 namespace celerytest {
@@ -29,7 +30,7 @@ struct stdout_listener : listener {
 };
 
 void init();
-const size_t attach(con::listener *);
+size_t attach(con::listener *);
 void log_all(severity &&, std::forward_list<std::string> &&);
 void detach(const size_t);
 void deinit();
