@@ -37,6 +37,8 @@ int main(int argc, char **argv) {
   // Hardcoded session code goes here.
 
   delete session;
+  celerytest::con::detach(0);
+  celerytest::con::detach(0);
   celerytest::con::deinit();
   delete out;
   delete console;

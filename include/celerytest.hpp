@@ -5,7 +5,7 @@
 #include <lua5.3/lua.hpp>
 
 // RATIONALE: In case version retrieval is needed
-#include "../build/include/celerytest_cfg.hpp"
+#include "celerytest_cfg.hpp"
 
 #include <array>
 #include <bitset>

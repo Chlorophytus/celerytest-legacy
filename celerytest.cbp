@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="celerytest"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\include\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\SDL2\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/accelshark/Documents/Git1/celerytest"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/accelshark/Documents/Git1/celerytest"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/accelshark/Documents/Git1/celerytest"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="celerytest">
+				<Option output="/home/accelshark/Documents/Git1/celerytest/celerytest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/accelshark/Documents/Git1/celerytest"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/SDL2"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 celerytest"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="celerytest/fast">
+				<Option output="/home/accelshark/Documents/Git1/celerytest/celerytest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/accelshark/Documents/Git1/celerytest"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/SDL2"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 celerytest/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/accelshark/Documents/Git1/celerytest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest.cpp">
+			<Option target="celerytest"/>
+		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest_con.cpp">
+			<Option target="celerytest"/>
+		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest_lua.cpp">
+			<Option target="celerytest"/>
+		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest_sim.cpp">
+			<Option target="celerytest"/>
+		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/include/celerytest_cfg.in">
+			<Option virtualFolder="CMake Files\include\"/>
+		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/../../../../../usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\SDL2\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.17)
 
 # You can change the name of the project
-project(celerytest VERSION 0.2.0.33)
+project(celerytest VERSION 0.2.0.34)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in include/${PROJECT_NAME}_cfg.hpp)
@@ -27,6 +27,7 @@ include_directories(
 # If you add classes you should add them here
 add_executable(${PROJECT_NAME}
     src/${PROJECT_NAME}_con.cpp
+    src/${PROJECT_NAME}_lua.cpp
     src/${PROJECT_NAME}_sim.cpp
     src/${PROJECT_NAME}.cpp)
 
@@ -39,4 +40,4 @@ target_link_libraries(${PROJECT_NAME}
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${LUA_LIBRARIES}
-    ${SDL2_LIBRARIES} Threads::Threads SDL2_image SDL2_ttf SDL2_net SDL2) 
+    ${SDL2_LIBRARIES} Threads::Threads SDL2_image SDL2_ttf SDL2_net SDL2)
