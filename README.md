@@ -1,7 +1,7 @@
 ![Celerytest](https://raw.githubusercontent.com/Chlorophytus/celerytest/master/lib/CelerytestPromo.png)
 
 # celerytest
-OpenGL 4.5 game engine! Inspired by Torque Game Engine 
+OpenGL 4.6 game engine! Inspired by Torque Game Engine 
 
 ## Usage
 ```
@@ -27,7 +27,7 @@ However, you could definitely run Celerytest on a new computer. See below.
 ### ...how do I run this?
 - CMake 3.15.x required
 - SDL2 (Base / TTF / Image / Net)
-- An OpenGL 4.5 runtime should be on your computer.
+- An OpenGL 4.6 runtime should be on your computer.
 
 ### ...why?
 I was bored. :)

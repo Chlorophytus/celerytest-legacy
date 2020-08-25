@@ -1,10 +1,10 @@
-//
-// Created by accelshark on 8/25/20.
-//
+#pragma once
+// OpenGL/SDL2 Session
+#include "celerytest.hpp"
 
-#ifndef CELERYTEST_CELERYTEST_SESSION_HPP
-#define CELERYTEST_CELERYTEST_SESSION_HPP
-
-class celerytest_session {};
-
-#endif // CELERYTEST_CELERYTEST_SESSION_HPP
+namespace celerytest {
+namespace gl {
+void create_context(std::string_view &, U16 &&, U16 &&);
+void remove_context();
+} // namespace gl
+} // namespace celerytest

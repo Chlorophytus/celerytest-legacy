@@ -1,3 +1,3 @@
-for i = 1, 10 do
-    celerytest.log("inf", "Hello from Lua: " .. tostring(i))
-end
+celerytest.create_glcontext("Celerytest", 1024, 600)
+celerytest.sleep(5000)
+celerytest.remove_glcontext()

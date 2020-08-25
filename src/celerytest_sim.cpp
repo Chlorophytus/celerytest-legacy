@@ -1,18 +1,42 @@
 #include "../include/celerytest_con.hpp"
 #include "../include/celerytest_lua.hpp"
 
-#include "../include/celerytest_sim.hpp"
-
 using namespace celerytest;
 
-sim::session::session(const std::filesystem::path &root, bool &&headless)
-    : headless{headless} {
+bool sim::bucket::full() const { return switchboard.all(); }
+
+[[maybe_unused]] sim::session::session(const std::filesystem::path &root, bool &&headless)
+    : headless{headless}, buckets{} {
   con::log_all(con::severity::debug, {"creating a session"});
+  for (auto &&bucket : buckets) {
+    bucket = nullptr;
+  }
   L = luaL_newstate();
   luaL_openlibs(L);
-  lua::set_all_functions(L);
-  if (headless) {
 
+  // `Celerytest` TABLE BELOW
+  lua_newtable(L); // create table to -1
+
+  lua_pushstring(L, "session");
+  lua_pushlightuserdata(L, this);
+  lua_settable(L, -3);
+
+  // SET FUNCTIONS BELOW
+
+  lua::set_one_function(L, "log", lua::log);
+  lua::set_one_function(L, "create", lua::create);
+  lua::set_one_function(L, "create_glcontext", lua::create_glcontext);
+  lua::set_one_function(L, "remove_glcontext", lua::remove_glcontext);
+  lua::set_one_function(L, "remove", lua::remove);
+  lua::set_one_function(L, "sleep", lua::sleep);
+
+
+  // SET FUNCTIONS ABOVE
+
+  lua_setglobal(L, "celerytest");
+  // `Celerytest` TABLE ABOVE
+
+  if (headless) {
     auto e = luaL_dofile(L, (root / "init_server.lua").c_str());
     if (e) {
       con::log_all(con::severity::error,
@@ -33,15 +57,19 @@ sim::session::~session() {
   con::log_all(con::severity::debug, {"deleting a session"});
 }
 
-void sim::session::delete_object(const size_t idx) {
+void sim::session::delete_object(size_t idx) {
   auto b_offset = idx / sim::bucket::objects_per_bucket;
   auto offset = idx % sim::bucket::objects_per_bucket;
   con::log_all(con::severity::debug,
-               {"deleting object ", std::to_string(offset), " at bucket ",
-                std::to_string(b_offset)});
+               {"trying to delete object ", std::to_string(offset),
+                " at bucket ", std::to_string(b_offset)});
   auto &&b = buckets.at(b_offset);
-  if (b->switchboard.test(offset)) {
-    b->data.at(offset) = nullptr;
-    b->switchboard.reset(offset);
+  if (b) {
+    if (b->switchboard.test(offset)) {
+      b->data.at(offset) = nullptr;
+      b->switchboard.reset(offset);
+      con::log_all(con::severity::debug,
+                   {"...deletion success"});
+    }
   }
 }
