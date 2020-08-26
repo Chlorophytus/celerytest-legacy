@@ -18,6 +18,7 @@
 #include <forward_list>
 #include <initializer_list>
 #include <memory>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <vector>

@@ -26,6 +26,11 @@ template <> struct is_object<object> {
 template <> struct introspect_type<object> {
   constexpr const static char *value = "SimObject";
 };
+// EVENTS
+struct event {
+  std::unique_ptr<SDL_Event> data;
+  U64 time;
+};
 // CONTEXTS
 struct context : object {
   virtual types get_type() const { return types::sim_context; }
@@ -52,6 +57,8 @@ struct session {
   lua_State *L = nullptr;
   constexpr const static size_t buckets_per_session = 2 << 9;
   const bool headless;
+  U64 sim_time{0};
+  std::queue<event> pending{};
 
   // Create an object
   template <typename T> size_t create_object() {
@@ -80,7 +87,7 @@ struct session {
           continue;
         }
       } else {
-        // Great, we have no bucket here, so we *create* a bucket here.
+        // Great, we have no bucket here, so we *create* one here.
         b = std::make_unique<bucket>();
       }
 
@@ -102,6 +109,7 @@ struct session {
   // Delete an object
   void delete_object(size_t);
 
+  void tick();
   std::array<std::unique_ptr<bucket>, buckets_per_session> buckets{nullptr};
   ~session();
 };

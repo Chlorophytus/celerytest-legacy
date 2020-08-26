@@ -13,8 +13,6 @@ void lua::set_one_function(lua_State *L, const char *key, lua_CFunction val) {
 }
 
 // === LUA FUNCTION CALLS =====================================================
-[[maybe_unused]] int lua::start_gui([[maybe_unused]] lua_State *L) { return 0; }
-
 int lua::log(lua_State *L) {
   auto severity =
       luaL_checkoption(L, 1, "inf",
@@ -78,8 +76,9 @@ int lua::create(lua_State *L) {
   auto title = std::string_view{luaL_checkstring(L, 1)};
   auto w = luaL_checkinteger(L, 2);
   auto h = luaL_checkinteger(L, 3);
+  auto f = lua_toboolean(L, 4);
 
-  gl::create_context(title, w, h);
+  gl::create_context(title, w, h, f);
 
   return 0;
 }
@@ -100,6 +99,60 @@ int lua::remove(lua_State *L) {
   session.delete_object(idx);
 
   return 0;
+}
+[[maybe_unused]] int lua::get_sim_time(lua_State *L) {
+  lua_getglobal(L, "celerytest");
+  lua_getfield(L, -1, "session");
+  auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+
+  lua_pushinteger(L, session.sim_time);
+  return 1;
+}
+
+[[maybe_unused]] int lua::poll(lua_State *L) {
+  lua_getglobal(L, "celerytest");
+  lua_getfield(L, -1, "session");
+  auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  session.tick();
+  if (!session.pending.empty()) {
+    auto &&event = session.pending.front();
+    switch (event.data->type) {
+    case SDL_KEYUP: {
+      lua_newtable(L);
+
+      lua_pushstring(L, SDL_GetKeyName(event.data->key.keysym.sym));
+      lua_setfield(L, -2, "kname");
+
+      lua_pushstring(L, "key_up");
+      lua_setfield(L, -2, "type");
+
+      lua_pushinteger(L, event.time);
+      lua_setfield(L, -2, "time");
+
+      session.pending.pop();
+      return 1;
+    }
+    case SDL_QUIT: {
+      lua_newtable(L);
+
+      lua_pushstring(L, "quit");
+      lua_setfield(L, -2, "type");
+
+      lua_pushinteger(L, event.time);
+      lua_setfield(L, -2, "time");
+
+      session.pending.pop();
+      return 1;
+    }
+    default: {
+      lua_pushnil(L);
+      session.pending.pop();
+      return 1;
+    }
+    }
+  }
+  lua_pushnil(L);
+  return 1;
 }
 int lua::sleep(lua_State *L) {
   auto ms = luaL_checkinteger(L, 1);

@@ -10,8 +10,8 @@ static SDL_GLContext sdl_gl_context;
 static U16 width;
 static U16 height;
 
-void gl::create_context(std::string_view &title, U16 &&w, U16 &&h) {
-  if(context_present) {
+void gl::create_context(std::string_view &title, U16 &&w, U16 &&h, bool &&f) {
+  if (context_present) {
     throw std::runtime_error{"only one celerytest GL context can be allocated"};
   }
 
@@ -24,19 +24,22 @@ void gl::create_context(std::string_view &title, U16 &&w, U16 &&h) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  sdl_window =
-      SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED,
-                       SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
+  sdl_window = SDL_CreateWindow(
+      title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,
+      height, SDL_WINDOW_OPENGL | (f ? SDL_WINDOW_FULLSCREEN : 0));
   sdl_gl_context = SDL_GL_CreateContext(sdl_window);
 
   glewExperimental = GL_TRUE;
   glewInit();
-
   context_present = true;
 }
 
+[[maybe_unused]] bool gl::tick() {
+  return true;
+}
+
 void gl::remove_context() {
-  if(!context_present) {
+  if (!context_present) {
     throw std::runtime_error{"celerytest GL context was double-freed"};
   }
 
