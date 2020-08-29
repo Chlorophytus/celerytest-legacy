@@ -4,6 +4,8 @@
 
 int main(int argc, char **argv) {
   SDL_Init(SDL_INIT_EVERYTHING);
+  TTF_Init();
+
   auto return_code = EXIT_FAILURE;
   auto root = std::filesystem::path{celerytest_SDIR};
   celerytest::con::init();
@@ -46,6 +48,8 @@ int main(int argc, char **argv) {
   celerytest::con::deinit();
   delete out;
   delete console;
+
+  TTF_Quit();
   SDL_Quit();
   return return_code;
 }

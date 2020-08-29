@@ -2,6 +2,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <lua5.3/lua.hpp>
 
 // RATIONALE: In case version retrieval is needed
@@ -18,6 +19,7 @@
 #include <forward_list>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <string>
 #include <string_view>

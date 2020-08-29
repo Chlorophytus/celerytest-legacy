@@ -76,6 +76,9 @@
 		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest_con.cpp">
 			<Option target="celerytest"/>
 		</Unit>
+		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest_gl.cpp">
+			<Option target="celerytest"/>
+		</Unit>
 		<Unit filename="/home/accelshark/Documents/Git1/celerytest/src/celerytest_lua.cpp">
 			<Option target="celerytest"/>
 		</Unit>

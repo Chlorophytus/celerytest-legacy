@@ -1,5 +1,6 @@
 #include "../include/celerytest_sim.hpp"
 #include "../include/celerytest_con.hpp"
+#include "../include/celerytest_gl.hpp"
 #include "../include/celerytest_lua.hpp"
 
 using namespace celerytest;
@@ -30,6 +31,7 @@ bool sim::bucket::full() const { return switchboard.all(); }
   lua::set_one_function(L, "create_glcontext", lua::create_glcontext);
   lua::set_one_function(L, "remove_glcontext", lua::remove_glcontext);
   lua::set_one_function(L, "get_sim_time", lua::get_sim_time);
+  lua::set_one_function(L, "set_root_view", lua::set_root_view);
   lua::set_one_function(L, "poll", lua::poll);
   lua::set_one_function(L, "remove", lua::remove);
   lua::set_one_function(L, "sleep", lua::sleep);
@@ -77,16 +79,22 @@ void sim::session::delete_object(size_t idx) {
 }
 
 void sim::session::tick() {
-  while (true) {
-    auto ev = new SDL_Event;
-    if (SDL_PollEvent(ev)) {
-      pending.emplace((sim::event){.data = std::unique_ptr<SDL_Event>{ev},
-                                   .time = sim_time});
-      con::log_all(con::severity::debug, {"event, please check queue (tick #",
-                                          std::to_string(sim_time), ")"});
-    } else {
-      sim_time++;
-      return;
-    }
+  auto ev = new SDL_Event;
+  SDL_PollEvent(ev);
+  pending.emplace((sim::event){.data = std::unique_ptr<SDL_Event>{ev},
+                               .time = sim_time});
+  con::log_all(con::severity::debug, {"event, please check queue (tick #",
+                                      std::to_string(sim_time), ")"});
+  sim_time++;
+  gl::tick();
+}
+sim::object *sim::session::query_object(size_t idx) {
+  auto b_offset = idx / sim::bucket::objects_per_bucket;
+  auto offset = idx % sim::bucket::objects_per_bucket;
+  auto &&b = buckets.at(b_offset);
+  if (b) {
+    return b->data.at(offset).get();
+  } else {
+    return nullptr;
   }
 }

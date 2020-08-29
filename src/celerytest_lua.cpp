@@ -1,5 +1,6 @@
 #include "../include/celerytest_con.hpp"
 #include "../include/celerytest_gl.hpp"
+#include "../include/celerytest_glview.hpp"
 
 #include "../include/celerytest_lua.hpp"
 
@@ -66,8 +67,39 @@ int lua::create(lua_State *L) {
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
 
   // Now create the object
-  auto idx = session.create_object<sim::object>();
-  lua_pushinteger(L, idx);
+  auto opt = luaL_checkoption(
+      L, 1, nullptr,
+      (const char *const[]){sim::introspect_type<sim::object>::value,
+                            sim::introspect_type<glview::view2d>::value,
+                            sim::introspect_type<glview::view3d>::value,
+                            nullptr});
+  switch (opt) {
+  case 0: {
+    auto idx = session.create_object<sim::object>();
+    lua_pushinteger(L, idx);
+    break;
+  }
+  case 1: {
+    auto idx = session.create_object<glview::view2d>();
+    auto o_ptr = session.query_object(idx);
+    auto d_ptr = dynamic_cast<glview::view2d *>(o_ptr);
+    d_ptr->w = luaL_checkinteger(L, 2);
+    d_ptr->h = luaL_checkinteger(L, 3);
+    d_ptr->post_create();
+
+    lua_pushinteger(L, idx);
+    break;
+  }
+    //  case 2: {
+    //    auto idx = session.create_object<glview::view3d>();
+    //    lua_pushinteger(L, idx);
+    //    break;
+    //  }
+  default: {
+    lua_pushnil(L);
+    break;
+  }
+  }
 
   return 1;
 }
@@ -95,10 +127,13 @@ int lua::remove(lua_State *L) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
-
+  auto o_ptr = session.query_object(idx);
+  if (o_ptr != nullptr) {
+    o_ptr->pre_destroy();
+  }
   session.delete_object(idx);
 
-  return 0;
+  return 1;
 }
 [[maybe_unused]] int lua::get_sim_time(lua_State *L) {
   lua_getglobal(L, "celerytest");
@@ -157,5 +192,21 @@ int lua::remove(lua_State *L) {
 int lua::sleep(lua_State *L) {
   auto ms = luaL_checkinteger(L, 1);
   SDL_Delay(ms);
+  return 0;
+}
+int lua::set_root_view(lua_State *L) {
+  lua_getglobal(L, "celerytest");
+  lua_getfield(L, -1, "session");
+  auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  auto idx = luaL_checkinteger(L, 1);
+  auto o_ptr = session.query_object(idx);
+
+  if (o_ptr != nullptr) {
+    if (o_ptr->get_type() == sim::types::glview_view2d ||
+        o_ptr->get_type() == sim::types::glview_view3d) {
+      auto r_ptr = dynamic_cast<glview::view2d *>(o_ptr);
+      gl::set_root_view(r_ptr);
+    }
+  }
   return 0;
 }

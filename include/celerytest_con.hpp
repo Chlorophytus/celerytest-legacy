@@ -16,7 +16,11 @@ enum class severity : U8 {
 };
 
 struct listener {
+#ifdef NDEBUG
   severity current_level = severity::informational;
+#else
+  severity current_level = severity::debug;
+#endif
   virtual void log(const severity &, const char *){};
 };
 struct file_listener : listener {

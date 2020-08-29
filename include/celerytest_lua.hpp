@@ -11,6 +11,7 @@ void set_one_function(lua_State *, const char *, lua_CFunction);
 int log(lua_State *);
 int create(lua_State *);
 [[maybe_unused]] int create_glcontext(lua_State *);
+[[maybe_unused]] int set_root_view(lua_State *);
 [[maybe_unused]] int get_sim_time(lua_State *);
 [[maybe_unused]] int poll(lua_State *);
 [[maybe_unused]] int sleep(lua_State *);

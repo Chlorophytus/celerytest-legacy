@@ -7,12 +7,21 @@ namespace celerytest {
 namespace sim {
 enum class types : U16 {
   sim_object,
-  sim_context,
+  glview_view2d,
+  glview_view3d
 };
 // OBJECTS
 struct object {
   virtual types get_type() const { return types::sim_object; }
   virtual const char *get_type_string() const { return "SimObject"; }
+
+  virtual void post_create() {
+    con::log_all(con::severity::debug, {"post create simobject"});
+  }
+  virtual void pre_destroy() {
+
+    con::log_all(con::severity::debug, {"pre destroy simobject"});
+  }
 };
 template <typename T> struct is_object {
   constexpr const static bool value = false;
@@ -30,18 +39,6 @@ template <> struct introspect_type<object> {
 struct event {
   std::unique_ptr<SDL_Event> data;
   U64 time;
-};
-// CONTEXTS
-struct context : object {
-  virtual types get_type() const { return types::sim_context; }
-  virtual const char *get_type_string() const { return "SimContext"; }
-
-};
-template <> struct is_object<context> {
-  constexpr const static bool value = true;
-};
-template <> struct introspect_type<context> {
-  constexpr const static char *value = "SimContext";
 };
 
 // Store a bucket of objects. This makes it modular and easy to sieve.
@@ -108,6 +105,7 @@ struct session {
   }
   // Delete an object
   void delete_object(size_t);
+  object *query_object(size_t);
 
   void tick();
   std::array<std::unique_ptr<bucket>, buckets_per_session> buckets{nullptr};

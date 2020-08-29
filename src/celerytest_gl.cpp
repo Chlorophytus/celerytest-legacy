@@ -5,6 +5,7 @@
 using namespace celerytest;
 
 static bool context_present = false;
+static glview::view2d *root_view = nullptr;
 static SDL_Window *sdl_window;
 static SDL_GLContext sdl_gl_context;
 static U16 width;
@@ -21,7 +22,8 @@ void gl::create_context(std::string_view &title, U16 &&w, U16 &&h, bool &&f) {
   height = h;
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+  // Decide whether we use OpenGL 4.5 or 4.6. I might make this a context opt.
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
   sdl_window = SDL_CreateWindow(
@@ -31,16 +33,28 @@ void gl::create_context(std::string_view &title, U16 &&w, U16 &&h, bool &&f) {
 
   glewExperimental = GL_TRUE;
   glewInit();
+
   context_present = true;
 }
 
-[[maybe_unused]] bool gl::tick() {
-  return true;
+void gl::set_root_view(glview::view2d *view) { root_view = view; }
+
+void gl::tick() {
+  if (context_present) {
+    if (root_view != nullptr) {
+      root_view->render();
+    }
+    SDL_GL_SwapWindow(sdl_window);
+  }
 }
 
 void gl::remove_context() {
   if (!context_present) {
     throw std::runtime_error{"celerytest GL context was double-freed"};
+  }
+
+  if (root_view != nullptr) {
+    root_view->pre_destroy();
   }
 
   con::log_all(con::severity::informational, {"removing an OpenGL context"});
