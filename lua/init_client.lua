@@ -1,17 +1,26 @@
-celerytest.create_glcontext("Celerytest", 1024, 600, false)
+local w = 1920
+local h = 1080
 
-local function should_quit(event)
-    local escape = event.type == "key_up" and event.kname == "Escape"
-    return event.type == "quit" or escape
+celerytest.create_glcontext("Celerytest", w, h, true)
+
+local function should_quit(e)
+    local escape = e.type == "key_up" and e.kname == "Escape"
+    return e.type == "quit" or escape
 end
 
-local glview = celerytest.create("GLView2D", 1024, 600)
+local glview = celerytest.create("GLView2D", w, h)
 celerytest.set_root_view(glview)
 
 while true do
-    local event = celerytest.poll()
-    if event ~= nil then
-        if should_quit(event) then celerytest.remove_glcontext(); return; end
+    while true do
+        local event = celerytest.poll()
+        if event ~= nil then
+            if should_quit(event) then
+                celerytest.remove_glcontext()
+                return
+            end
+        else break end
     end
+    celerytest.render()
     celerytest.sleep(10)
 end

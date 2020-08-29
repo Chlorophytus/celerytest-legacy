@@ -62,21 +62,15 @@ void glview::view2d::render() {
   con::log_all(con::severity::debug, {"post render glview2d"});
 }
 void glview::view2d::onrender() {
-  for (U32 i = 0; i < h; i++) {
-    for (U32 j = 0; j < w; j++) {
-      auto r = static_cast<U8>(i ^ j) << 2;
-      auto g = static_cast<U8>(i ^ j) << 1;
-      auto b = static_cast<U8>(i ^ j) << 0;
-      reinterpret_cast<U32 *>(surface->pixels)[i * w + j] = 0x00000000;
-      reinterpret_cast<U32 *>(surface->pixels)[i * w + j] |= r << 0x18;
-      reinterpret_cast<U32 *>(surface->pixels)[i * w + j] |= g << 0x10;
-      reinterpret_cast<U32 *>(surface->pixels)[i * w + j] |= b << 0x08;
-    }
-  }
+  SDL_FillRect(surface, nullptr, 0xFF00FFFF);
   auto font_surface = TTF_RenderText_Blended(
-      font, (std::string{"fps: "} + std::to_string(1000 / last_ms)).c_str(),
+      font,
+      (last_ms != 0 ? std::string{"fps: "} + std::to_string(1000 / last_ms)
+                    : std::string{"fps: 1000+"})
+          .c_str(),
       (SDL_Color){.r = 0xFF, .g = 0xFF, .b = 0x80, .a = 0xFF});
-  SDL_Rect rect{.x = 100, .y = 480, .w = font_surface->w, .h = font_surface->h};
+  SDL_Rect rect{
+      .x = 75, .y = h - 100, .w = font_surface->w, .h = font_surface->h};
   SDL_BlitSurface(font_surface, nullptr, surface, &rect);
 
   SDL_FreeSurface(font_surface);

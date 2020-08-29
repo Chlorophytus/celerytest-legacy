@@ -33,6 +33,7 @@ bool sim::bucket::full() const { return switchboard.all(); }
   lua::set_one_function(L, "get_sim_time", lua::get_sim_time);
   lua::set_one_function(L, "set_root_view", lua::set_root_view);
   lua::set_one_function(L, "poll", lua::poll);
+  lua::set_one_function(L, "render", lua::render);
   lua::set_one_function(L, "remove", lua::remove);
   lua::set_one_function(L, "sleep", lua::sleep);
 
@@ -79,14 +80,15 @@ void sim::session::delete_object(size_t idx) {
 }
 
 void sim::session::tick() {
-  auto ev = new SDL_Event;
-  SDL_PollEvent(ev);
-  pending.emplace((sim::event){.data = std::unique_ptr<SDL_Event>{ev},
-                               .time = sim_time});
-  con::log_all(con::severity::debug, {"event, please check queue (tick #",
-                                      std::to_string(sim_time), ")"});
+  SDL_Event *ev;
+  do {
+    ev = new SDL_Event;
+    pending.emplace(
+        (sim::event){.data = std::unique_ptr<SDL_Event>{ev}, .time = sim_time});
+    con::log_all(con::severity::debug, {"event, please check queue (tick #",
+                                        std::to_string(sim_time), ")"});
+  } while (SDL_PollEvent(ev));
   sim_time++;
-  gl::tick();
 }
 sim::object *sim::session::query_object(size_t idx) {
   auto b_offset = idx / sim::bucket::objects_per_bucket;

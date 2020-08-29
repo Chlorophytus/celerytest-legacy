@@ -144,6 +144,11 @@ int lua::remove(lua_State *L) {
   return 1;
 }
 
+[[maybe_unused]] int lua::render(lua_State *L) {
+  gl::tick();
+  return 0;
+}
+
 [[maybe_unused]] int lua::poll(lua_State *L) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");

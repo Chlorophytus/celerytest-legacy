@@ -14,6 +14,7 @@ int create(lua_State *);
 [[maybe_unused]] int set_root_view(lua_State *);
 [[maybe_unused]] int get_sim_time(lua_State *);
 [[maybe_unused]] int poll(lua_State *);
+[[maybe_unused]] int render(lua_State *);
 [[maybe_unused]] int sleep(lua_State *);
 [[maybe_unused]] int remove_glcontext(lua_State *);
 int remove(lua_State *);
