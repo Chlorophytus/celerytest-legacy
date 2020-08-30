@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.17)
 
 # You can change the name of the project
-project(celerytest VERSION 0.2.0.38)
+project(celerytest VERSION 0.2.0.39)
 
 # First we configure the project
-configure_file(include/${PROJECT_NAME}_cfg.in ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}_cfg.hpp)
+configure_file(include/${PROJECT_NAME}_cfg.in
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}_cfg.hpp)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)

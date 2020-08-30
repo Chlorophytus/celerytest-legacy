@@ -3,11 +3,13 @@
 #include "../include/celerytest_sim.hpp"
 
 int main(int argc, char **argv) {
+  __builtin_cpu_init();
+
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
 
   auto return_code = EXIT_FAILURE;
-  auto root = std::filesystem::path{celerytest_SDIR};
+  auto root = std::filesystem::current_path();
   celerytest::con::init();
   auto console = new celerytest::con::file_listener{root / "console.log"};
   auto out = new celerytest::con::stdout_listener{};
@@ -15,6 +17,7 @@ int main(int argc, char **argv) {
   celerytest::con::attach(out);
   celerytest::con::log_all(celerytest::con::severity::informational,
                            {"celerytest ", celerytest_VSTRING_FULL});
+  celerytest::con::log_all(celerytest::con::severity::informational, {"path is '", root.c_str(), "'"});
   celerytest::con::log_all(
       celerytest::con::severity::informational,
       {"configured with ",
@@ -32,8 +35,9 @@ int main(int argc, char **argv) {
        std::to_string(celerytest::sim::bucket::objects_per_bucket *
                       celerytest::sim::session::buckets_per_session),
        " objects/session"});
+    celerytest::con::log_cpuid();
   try {
-    auto session = new celerytest::sim::session{root / "lua", false};
+    auto session = new celerytest::sim::session{root, false};
 
     // Hardcoded session code goes here.
 

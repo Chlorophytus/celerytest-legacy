@@ -1,7 +1,7 @@
-local w = 1920
-local h = 1080
+local w = 1024
+local h = 600
 
-celerytest.create_glcontext("Celerytest", w, h, true)
+celerytest.create_glcontext("Celerytest", w, h, false)
 
 local function should_quit(e)
     local escape = e.type == "key_up" and e.kname == "Escape"

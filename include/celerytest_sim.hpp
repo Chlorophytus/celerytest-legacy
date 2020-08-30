@@ -7,8 +7,7 @@ namespace celerytest {
 namespace sim {
 enum class types : U16 {
   sim_object,
-  glview_view2d,
-  glview_view3d
+  glview_view2d
 };
 // OBJECTS
 struct object {
@@ -56,6 +55,7 @@ struct session {
   const bool headless;
   U64 sim_time{0};
   std::queue<event> pending{};
+  const std::filesystem::path root;
 
   // Create an object
   template <typename T> size_t create_object() {

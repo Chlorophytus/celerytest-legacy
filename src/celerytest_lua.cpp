@@ -71,7 +71,6 @@ int lua::create(lua_State *L) {
       L, 1, nullptr,
       (const char *const[]){sim::introspect_type<sim::object>::value,
                             sim::introspect_type<glview::view2d>::value,
-                            sim::introspect_type<glview::view3d>::value,
                             nullptr});
   switch (opt) {
   case 0: {
@@ -85,16 +84,12 @@ int lua::create(lua_State *L) {
     auto d_ptr = dynamic_cast<glview::view2d *>(o_ptr);
     d_ptr->w = luaL_checkinteger(L, 2);
     d_ptr->h = luaL_checkinteger(L, 3);
+    d_ptr->font_dir = std::filesystem::path{session.root / "lib" / "fonts"};
     d_ptr->post_create();
 
     lua_pushinteger(L, idx);
     break;
   }
-    //  case 2: {
-    //    auto idx = session.create_object<glview::view3d>();
-    //    lua_pushinteger(L, idx);
-    //    break;
-    //  }
   default: {
     lua_pushnil(L);
     break;
@@ -207,8 +202,7 @@ int lua::set_root_view(lua_State *L) {
   auto o_ptr = session.query_object(idx);
 
   if (o_ptr != nullptr) {
-    if (o_ptr->get_type() == sim::types::glview_view2d ||
-        o_ptr->get_type() == sim::types::glview_view3d) {
+    if (o_ptr->get_type() == sim::types::glview_view2d) {
       auto r_ptr = dynamic_cast<glview::view2d *>(o_ptr);
       gl::set_root_view(r_ptr);
     }

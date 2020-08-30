@@ -10,23 +10,15 @@ void glview::view2d::post_create() {
 
   surface = SDL_CreateRGBSurface(0, w, h, 32, 0xFF000000, 0x00FF0000,
                                  0x0000FF00, 0x000000FF);
-  font =
-      TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 24);
+  auto debug_font = (font_dir / "Neucha-Regular.ttf");
+  con::log_all(con::severity::debug, {"with font ", debug_font});
+  font = TTF_OpenFont(debug_font.c_str(), 24);
 
   glGenFramebuffers(1, &framebuffer);
   glGenTextures(1, &ui_texture);
 
   last_ms = 1000;
   render();
-}
-void glview::view3d::post_create() {
-  view2d::post_create();
-  con::log_all(con::severity::debug, {"post create glview3d"});
-}
-
-void glview::view3d::pre_destroy() {
-  con::log_all(con::severity::debug, {"pre destroy glview3d"});
-  view2d::pre_destroy();
 }
 void glview::view2d::pre_destroy() {
   con::log_all(con::severity::debug, {"pre destroy glview2d"});

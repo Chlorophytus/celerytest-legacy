@@ -1,7 +1,7 @@
 ![Celerytest](https://raw.githubusercontent.com/Chlorophytus/celerytest/master/lib/CelerytestPromo.png)
 
 # celerytest
-OpenGL 4.6 game engine! Inspired by Torque Game Engine 
+OpenGL 4 game engine! Inspired by Torque Game Engine 
 
 ## Usage
 ```

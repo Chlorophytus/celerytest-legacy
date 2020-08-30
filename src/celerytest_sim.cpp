@@ -9,7 +9,7 @@ bool sim::bucket::full() const { return switchboard.all(); }
 
 [[maybe_unused]] sim::session::session(const std::filesystem::path &root,
                                        bool &&headless)
-    : headless{headless}, buckets{} {
+    : headless{headless}, buckets{}, root{root} {
   con::log_all(con::severity::debug, {"creating a session"});
   for (auto &&bucket : buckets) {
     bucket = nullptr;
@@ -43,14 +43,14 @@ bool sim::bucket::full() const { return switchboard.all(); }
   // `Celerytest` TABLE ABOVE
 
   if (headless) {
-    auto e = luaL_dofile(L, (root / "init_server.lua").c_str());
+    auto e = luaL_dofile(L, (root / "lua" / "init_server.lua").c_str());
     if (e) {
       con::log_all(con::severity::error,
                    {"`init_server.lua` failure: ", lua_tostring(L, -1)});
       lua_pop(L, 1);
     }
   } else {
-    auto e = luaL_dofile(L, (root / "init_client.lua").c_str());
+    auto e = luaL_dofile(L, (root / "lua" / "init_client.lua").c_str());
     if (e) {
       con::log_all(con::severity::error,
                    {"`init_client.lua` failure: ", lua_tostring(L, -1)});
