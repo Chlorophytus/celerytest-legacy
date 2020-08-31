@@ -7,7 +7,7 @@
 using namespace celerytest;
 
 // Sets a Lua function
-void lua::set_one_function(lua_State *L, const char *key, lua_CFunction val) {
+void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   lua_pushstring(L, key);    // push a key at -2
   lua_pushcfunction(L, val); // push a value at -3
   lua_settable(L, -3);

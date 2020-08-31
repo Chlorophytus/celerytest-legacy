@@ -51,7 +51,7 @@ struct bucket {
 struct session {
   [[maybe_unused]] session(const std::filesystem::path &, bool &&);
   lua_State *L = nullptr;
-  constexpr const static size_t buckets_per_session = 2 << 9;
+  constexpr const static size_t buckets_per_session = 2 << 10;
   const bool headless;
   U64 sim_time{0};
   std::queue<event> pending{};

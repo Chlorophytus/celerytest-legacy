@@ -5,7 +5,7 @@
 
 namespace celerytest {
 namespace lua {
-void set_one_function(lua_State *, const char *, lua_CFunction);
+void declare_function(lua_State *, const char *, lua_CFunction);
 
 // Lua calls...
 int log(lua_State *);
