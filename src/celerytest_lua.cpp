@@ -65,6 +65,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  lua_pop(L, 2);
 
   // Now create the object
   auto opt = luaL_checkoption(
@@ -83,9 +84,91 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     auto idx = session.create_object<glview::view2d>();
     auto o_ptr = session.query_object(idx);
     auto d_ptr = dynamic_cast<glview::view2d *>(o_ptr);
-    d_ptr->w = luaL_checkinteger(L, 2);
-    d_ptr->h = luaL_checkinteger(L, 3);
+
+    if (lua_getfield(L, 2, "w") == LUA_TNUMBER) {
+      auto w = lua_tointeger(L, -1);
+      d_ptr->w = w;
+    }
+    lua_pop(L, 1);
+
+    if (lua_getfield(L, 2, "h") == LUA_TNUMBER) {
+      auto h = lua_tointeger(L, -1);
+      d_ptr->h = h;
+    }
+    lua_pop(L, 1);
+
     d_ptr->font_dir = std::filesystem::path{session.root / "lib" / "fonts"};
+    d_ptr->post_create();
+
+    lua_pushinteger(L, idx);
+    break;
+  }
+  case 2: {
+    auto idx = session.create_object<gui::text_ctrl>();
+    auto o_ptr = session.query_object(idx);
+    auto d_ptr = dynamic_cast<gui::text_ctrl *>(o_ptr);
+    // RECT
+    if (lua_getfield(L, 2, "rect") == LUA_TTABLE) {
+      if (lua_getfield(L, -1, "x") == LUA_TNUMBER) {
+        d_ptr->rect->x = lua_tointeger(L, -1);
+      }
+      lua_pop(L, 1);
+
+      if (lua_getfield(L, -1, "y") == LUA_TNUMBER) {
+        d_ptr->rect->y = lua_tointeger(L, -1);
+      }
+      lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+
+    // TEXT
+    if (lua_getfield(L, 2, "text") == LUA_TSTRING) {
+      auto text = lua_tostring(L, -1);
+      d_ptr->text = text;
+    }
+    lua_pop(L, 1);
+
+    // COLOR
+    if (lua_getfield(L, 2, "color") == LUA_TTABLE) {
+      if (lua_getfield(L, -1, "a") == LUA_TNUMBER) {
+        d_ptr->color.a = lua_tointeger(L, -1);
+      }
+      lua_pop(L, 1);
+
+      if (lua_getfield(L, -1, "b") == LUA_TNUMBER) {
+        d_ptr->color.b = lua_tointeger(L, -1);
+      }
+      lua_pop(L, 1);
+
+      if (lua_getfield(L, -1, "g") == LUA_TNUMBER) {
+        d_ptr->color.g = lua_tointeger(L, -1);
+      }
+      lua_pop(L, 1);
+
+      if (lua_getfield(L, -1, "r") == LUA_TNUMBER) {
+        d_ptr->color.r = lua_tointeger(L, -1);
+      }
+      lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+
+    // FONT
+    if (lua_getfield(L, 2, "font") == LUA_TSTRING) {
+      auto font = lua_tostring(L, -1);
+      auto concated = std::filesystem::path{font, ".ttf"};
+      auto path =
+          std::filesystem::path{session.root / "lib" / "fonts" / concated};
+      if (!std::filesystem::exists(path)) {
+        lua_getglobal(L, "celerytest");
+        lua_getfield(L, -1, "fallback_fontdir");
+        auto fallback = lua_tostring(L, -1);
+        path = std::filesystem::path{fallback / concated};
+        lua_pop(L, 2);
+      }
+      d_ptr->font_path = path;
+    }
+    lua_pop(L, 1);
+
     d_ptr->post_create();
 
     lua_pushinteger(L, idx);
@@ -123,6 +206,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  lua_pop(L, 2);
   auto o_ptr = session.query_object(idx);
   if (o_ptr != nullptr) {
     o_ptr->pre_destroy();
@@ -135,6 +219,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  lua_pop(L, 2);
 
   lua_pushinteger(L, session.sim_time);
   return 1;
@@ -149,6 +234,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  lua_pop(L, 2);
   session.tick();
   if (!session.pending.empty()) {
     auto &&event = session.pending.front();
@@ -198,6 +284,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  lua_pop(L, 2);
   auto idx = luaL_checkinteger(L, 1);
   auto o_ptr = session.query_object(idx);
 
@@ -274,43 +361,26 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     case sim::types::gui_textctrl: {
       auto opt = luaL_checkoption(
           L, 2, nullptr,
-          (const char *const[]){"sw", "sh", "w", "h", "x", "y", "text", "font",
-                                "color", nullptr});
+          (const char *const[]){"rect", "text", "color", "font", nullptr});
       auto r_ptr = dynamic_cast<gui::text_ctrl *>(o_ptr);
       switch (opt) {
       case 0: {
-        lua_pushinteger(L, r_ptr->surface->w);
+        lua_newtable(L);
+        lua_pushinteger(L, r_ptr->rect->w);
+        lua_setfield(L, -2, "w");
+        lua_pushinteger(L, r_ptr->rect->h);
+        lua_setfield(L, -2, "h");
+        lua_pushinteger(L, r_ptr->rect->x);
+        lua_setfield(L, -2, "x");
+        lua_pushinteger(L, r_ptr->rect->y);
+        lua_setfield(L, -2, "y");
         return 1;
       }
       case 1: {
-        lua_pushinteger(L, r_ptr->surface->h);
-        return 1;
-      }
-      case 2: {
-        lua_pushinteger(L, r_ptr->rect->w);
-        return 1;
-      }
-      case 3: {
-        lua_pushinteger(L, r_ptr->rect->h);
-        return 1;
-      }
-      case 4: {
-        lua_pushinteger(L, r_ptr->rect->x);
-        return 1;
-      }
-      case 5: {
-        lua_pushinteger(L, r_ptr->rect->y);
-        return 1;
-      }
-      case 6: {
         lua_pushstring(L, r_ptr->text.c_str());
         return 1;
       }
-      case 7: {
-        lua_pushstring(L, r_ptr->font_path.stem().c_str());
-        return 1;
-      }
-      case 8: {
+      case 2: {
         lua_newtable(L);
         lua_pushinteger(L, r_ptr->color.a);
         lua_setfield(L, -2, "a");
@@ -320,6 +390,10 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
         lua_setfield(L, -2, "g");
         lua_pushinteger(L, r_ptr->color.r);
         lua_setfield(L, -2, "r");
+        return 1;
+      }
+      case 3: {
+        lua_pushstring(L, r_ptr->font_path.stem().c_str());
         return 1;
       }
       default: {
@@ -341,7 +415,68 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   if (o_ptr != nullptr) {
     switch (o_ptr->get_type()) {
     case sim::types::gui_textctrl: {
-      break;
+      auto opt = luaL_checkoption(
+          L, 2, nullptr,
+          (const char *const[]){"rect", "text", "color", nullptr});
+      auto r_ptr = dynamic_cast<gui::text_ctrl *>(o_ptr);
+      switch (opt) {
+      case 0: {
+        // XPOS
+        if (lua_getfield(L, 3, "x") == LUA_TNUMBER) {
+          auto x = lua_tointeger(L, -1);
+          r_ptr->rect->x = x;
+        }
+        lua_pop(L, 1);
+        // YPOS
+        if (lua_getfield(L, 3, "y") == LUA_TNUMBER) {
+          auto y = lua_tointeger(L, -1);
+          r_ptr->rect->y = y;
+        }
+        lua_pop(L, 1);
+        break;
+      }
+      case 1: {
+        auto text = luaL_checkstring(L, 3);
+        r_ptr->text = text;
+        r_ptr->dirty = true;
+        break;
+      }
+      case 2: {
+        // ALPHA
+        if (lua_getfield(L, 3, "a") == LUA_TNUMBER) {
+          auto a = lua_tointeger(L, -1);
+          r_ptr->color.a = a;
+        }
+        lua_pop(L, 1);
+
+        // BLUE
+        if (lua_getfield(L, 3, "b") == LUA_TNUMBER) {
+          auto b = lua_tointeger(L, -1);
+          r_ptr->color.b = b;
+        }
+        lua_pop(L, 1);
+
+        // GREEN
+        if (lua_getfield(L, 3, "g") == LUA_TNUMBER) {
+          auto g = lua_tointeger(L, -1);
+          r_ptr->color.g = g;
+        }
+        lua_pop(L, 1);
+
+        // RED
+        if (lua_getfield(L, 3, "r") == LUA_TNUMBER) {
+          auto r = lua_tointeger(L, -1);
+          r_ptr->color.r = r;
+        }
+        lua_pop(L, 1);
+
+        r_ptr->dirty = true;
+        break;
+      }
+      default: {
+        break;
+      }
+      }
     }
     default: {
       break;
@@ -350,14 +485,34 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
   }
   return 0;
 }
-[[maybe_unused]] int lua::gui_insert(lua_State *) { return 0; }
-[[maybe_unused]] int lua::gui_remove(lua_State *) { return 0; }
+[[maybe_unused]] int lua::gui_insert(lua_State *L) {
+  auto z = luaL_checkinteger(L, 1);
+  auto idx = luaL_checkinteger(L, 2);
+  gl::get_root_view()->ctrls_idx.assign(z, idx);
+  return 0;
+}
+[[maybe_unused]] int lua::gui_objcnt(lua_State *L) {
+  lua_pushinteger(L, gl::get_root_view()->ctrls_idx.size());
+  return 1;
+}
+[[maybe_unused]] int lua::gui_remove(lua_State *L) {
+  auto z = luaL_checkinteger(L, 1);
+  if(z < 0) {
+    gl::get_root_view()->ctrls_idx.erase(
+        gl::get_root_view()->ctrls_idx.end() + z);
+  } else {
+    gl::get_root_view()->ctrls_idx.erase(
+        gl::get_root_view()->ctrls_idx.begin() + z);
+  }
+  return 0;
+}
 
 //  quick utility functions
 sim::object *lua::quick_getobj(lua_State *L) {
   lua_getglobal(L, "celerytest");
   lua_getfield(L, -1, "session");
   auto &&session = *reinterpret_cast<sim::session *>(lua_touserdata(L, -1));
+  lua_pop(L, 2);
   auto idx = luaL_checkinteger(L, 1);
   return session.query_object(idx);
 }

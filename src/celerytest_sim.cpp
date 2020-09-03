@@ -29,13 +29,18 @@ bool sim::bucket::full() const { return switchboard.all(); }
   lua::declare_function(L, "log", lua::log);
   lua::declare_function(L, "create", lua::create);
   lua::declare_function(L, "create_glcontext", lua::create_glcontext);
-  lua::declare_function(L, "remove_glcontext", lua::remove_glcontext);
+  lua::declare_function(L, "get", lua::get);
   lua::declare_function(L, "get_sim_time", lua::get_sim_time);
   lua::declare_function(L, "set_root_view", lua::set_root_view);
+  lua::declare_function(L, "set", lua::set);
   lua::declare_function(L, "poll", lua::poll);
+  lua::declare_function(L, "gui_insert", lua::gui_insert);
+  lua::declare_function(L, "gui_objcnt", lua::gui_objcnt);
+  lua::declare_function(L, "gui_remove", lua::gui_remove);
   lua::declare_function(L, "render", lua::render);
-  lua::declare_function(L, "remove", lua::remove);
   lua::declare_function(L, "sleep", lua::sleep);
+  lua::declare_function(L, "remove_glcontext", lua::remove_glcontext);
+  lua::declare_function(L, "remove", lua::remove);
 
   // SET FUNCTIONS ABOVE
 

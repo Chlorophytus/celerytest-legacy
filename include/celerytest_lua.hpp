@@ -19,6 +19,7 @@ sim::object *quick_getobj(lua_State *);
 [[maybe_unused]] int get(lua_State *);
 [[maybe_unused]] int set(lua_State *);
 [[maybe_unused]] int gui_insert(lua_State *);
+[[maybe_unused]] int gui_objcnt(lua_State *);
 [[maybe_unused]] int gui_remove(lua_State *);
 [[maybe_unused]] int remove_glcontext(lua_State *);
 [[maybe_unused]] int remove(lua_State *);

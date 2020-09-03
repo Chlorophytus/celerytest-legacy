@@ -12,7 +12,7 @@ void glview::view2d::post_create() {
                                  0x0000FF00, 0x000000FF);
   auto debug_font = (font_dir / "SourceCodePro-Regular.ttf");
   con::log_all(con::severity::debug, {"with font ", debug_font});
-  font = TTF_OpenFont(debug_font.c_str(), 24);
+  font = TTF_OpenFont(debug_font.c_str(), 16);
 
   glGenFramebuffers(1, &framebuffer);
   glGenTextures(1, &ui_texture);

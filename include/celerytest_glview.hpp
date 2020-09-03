@@ -17,7 +17,7 @@ template <> struct introspect_type<glview::view2d> {
 } // namespace sim
 namespace glview {
 struct view2d : sim::object {
-  sim::session *parent = nullptr;
+  sim::session *parent{nullptr};
   std::vector<U64> ctrls_idx{};
   U16 w;
   U16 h;

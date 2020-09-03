@@ -8,7 +8,7 @@ local function should_quit(e)
     return e.type == "quit" or escape
 end
 
-local glview = celerytest.create("GLView2D", w, h)
+local glview = celerytest.create("GLView2D", { w = w, h = h, })
 celerytest.set_root_view(glview)
 
 while true do

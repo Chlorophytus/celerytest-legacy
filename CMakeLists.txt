@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 
 # You can change the name of the project
-project(celerytest VERSION 0.2.0.41)
+project(celerytest VERSION 0.2.0.42)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in
