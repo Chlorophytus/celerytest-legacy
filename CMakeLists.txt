@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 
 # You can change the name of the project
-project(celerytest VERSION 0.2.0.40)
+project(celerytest VERSION 0.2.0.41)
 
 # First we configure the project
 configure_file(include/${PROJECT_NAME}_cfg.in
@@ -32,6 +32,7 @@ add_executable(${PROJECT_NAME}
         src/${PROJECT_NAME}_sim.cpp
         src/${PROJECT_NAME}_gl.cpp
         src/${PROJECT_NAME}_glview.cpp
+        src/${PROJECT_NAME}_gui.cpp
         src/${PROJECT_NAME}.cpp)
 
 # Enable filthy C++17 extensions

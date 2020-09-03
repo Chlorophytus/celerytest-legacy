@@ -7,25 +7,18 @@ namespace celerytest {
 namespace sim {
 enum class types : U16 {
   sim_object,
-  glview_view2d
+  glview_view2d,
+  gui_ctrl,
+  gui_textctrl,
 };
 // OBJECTS
-struct object {
-  virtual types get_type() const { return types::sim_object; }
-  virtual const char *get_type_string() const { return "SimObject"; }
-
-  virtual void post_create() {
-    con::log_all(con::severity::debug, {"post create simobject"});
-  }
-  virtual void pre_destroy() {
-
-    con::log_all(con::severity::debug, {"pre destroy simobject"});
-  }
-};
+struct object;
 template <typename T> struct is_object {
   constexpr const static bool value = false;
 };
 template <typename T> struct introspect_type {
+  static_assert(is_object<T>::value,
+                "introspect_type encountered an invalid object type");
   constexpr const static char *value = "Invalid";
 };
 template <> struct is_object<object> {
@@ -33,6 +26,19 @@ template <> struct is_object<object> {
 };
 template <> struct introspect_type<object> {
   constexpr const static char *value = "SimObject";
+};
+struct object {
+  virtual types get_type() const { return types::sim_object; }
+  virtual const char *get_type_string() const {
+    return introspect_type<object>::value;
+  }
+
+  virtual void post_create() {
+    con::log_all(con::severity::debug, {"post create simobject"});
+  }
+  virtual void pre_destroy() {
+    con::log_all(con::severity::debug, {"pre destroy simobject"});
+  }
 };
 // EVENTS
 struct event {

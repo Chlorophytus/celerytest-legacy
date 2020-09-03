@@ -37,7 +37,10 @@ void gl::create_context(std::string_view &title, U16 &&w, U16 &&h, bool &&f) {
   context_present = true;
 }
 
-void gl::set_root_view(glview::view2d *view) { root_view = view; }
+void gl::set_root_view(sim::session *session, glview::view2d *view) {
+  root_view->parent = session;
+  root_view = view;
+}
 
 void gl::tick() {
   if (context_present) {
