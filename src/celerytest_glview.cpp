@@ -24,8 +24,8 @@ void glview::view2d::post_create() {
 void glview::view2d::pre_destroy() {
   con::log_all(con::severity::debug, {"pre destroy glview2d"});
 
-  glDeleteTextures(1, &ui_texture);
   glDeleteFramebuffers(1, &framebuffer);
+  glDeleteTextures(1, &ui_texture);
 
   SDL_FreeSurface(surface);
 

@@ -108,6 +108,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     auto o_ptr = session.query_object(idx);
     auto d_ptr = dynamic_cast<gui::text_ctrl *>(o_ptr);
     // RECT
+    d_ptr->rect = std::make_unique<SDL_Rect>();
     if (lua_getfield(L, 2, "rect") == LUA_TTABLE) {
       if (lua_getfield(L, -1, "x") == LUA_TNUMBER) {
         d_ptr->rect->x = lua_tointeger(L, -1);
@@ -155,9 +156,11 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     // FONT
     if (lua_getfield(L, 2, "font") == LUA_TSTRING) {
       auto font = lua_tostring(L, -1);
-      auto concated = std::filesystem::path{font, ".ttf"};
+      auto concated = std::filesystem::path{font};
       auto path =
           std::filesystem::path{session.root / "lib" / "fonts" / concated};
+      con::log_all(con::severity::debug, {"load font ", path});
+
       if (!std::filesystem::exists(path)) {
         lua_getglobal(L, "celerytest");
         lua_getfield(L, -1, "fallback_fontdir");
@@ -166,6 +169,12 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
         lua_pop(L, 2);
       }
       d_ptr->font_path = path;
+    }
+    lua_pop(L, 1);
+
+    if (lua_getfield(L, 2, "size") == LUA_TNUMBER) {
+      auto size = lua_tointeger(L, -1);
+      d_ptr->font_size = size;
     }
     lua_pop(L, 1);
 
@@ -393,7 +402,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
         return 1;
       }
       case 3: {
-        lua_pushstring(L, r_ptr->font_path.stem().c_str());
+        lua_pushstring(L, r_ptr->font_path.filename().c_str());
         return 1;
       }
       default: {
@@ -488,7 +497,13 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
 [[maybe_unused]] int lua::gui_insert(lua_State *L) {
   auto z = luaL_checkinteger(L, 1);
   auto idx = luaL_checkinteger(L, 2);
-  gl::get_root_view()->ctrls_idx.assign(z, idx);
+  if(z < 0) {
+    gl::get_root_view()->ctrls_idx.emplace(
+        gl::get_root_view()->ctrls_idx.end() + z, idx);
+  } else {
+    gl::get_root_view()->ctrls_idx.emplace(
+        gl::get_root_view()->ctrls_idx.begin() + z, idx);
+  }
   return 0;
 }
 [[maybe_unused]] int lua::gui_objcnt(lua_State *L) {

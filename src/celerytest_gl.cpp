@@ -57,10 +57,6 @@ void gl::remove_context() {
     throw std::runtime_error{"celerytest GL context was double-freed"};
   }
 
-  if (root_view != nullptr) {
-    root_view->pre_destroy();
-  }
-
   con::log_all(con::severity::informational, {"removing an OpenGL context"});
   SDL_GL_DeleteContext(sdl_gl_context);
 

@@ -11,6 +11,7 @@ void gui::text_ctrl::post_create() {
   con::log_all(con::severity::debug, {"post create guitextctrl"});
 
   font = TTF_OpenFont(font_path.c_str(), font_size);
+  dirty = true;
 }
 void gui::text_ctrl::on_paint() {
   // putting tracers here to debug double allocs/frees when we get them
@@ -30,7 +31,7 @@ void gui::text_ctrl::on_paint() {
 void gui::text_ctrl::pre_destroy() {
   con::log_all(con::severity::debug, {"pre destroy guitextctrl"});
   if (free_this) {
-    con::log_all(con::severity::debug, {"freeing a text surface"});
+    con::log_all(con::severity::debug, {"freeing a text surface 2"});
     SDL_FreeSurface(surface);
     free_this = false;
   }
