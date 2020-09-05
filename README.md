@@ -5,11 +5,9 @@ OpenGL 4 game engine! Inspired by Torque Game Engine
 
 ## Usage
 ```
-$ ./build/celerytest w h f
+$ ./build/celerytest
 ```
-- `w` : width
-- `h` : height
-- `f` : fullscreen flag (1 = on, 0 = off)
+- A few variables can be configured in `lua/init_client.lua`.
 
 ## Okay so...
 ### ...devkits!

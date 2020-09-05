@@ -8,15 +8,15 @@ local function should_quit(e)
     return e.type == "quit" or escape
 end
 
-local glview = celerytest.create("GLView2D", { w = w, h = h, })
+local glview = celerytest.create("GLView2D", {})
 celerytest.set_root_view(glview)
 
 local text = celerytest.create("GuiTextCtrl", {
-    color = { a = 0xFF, b = 0xff, g = 0x00, r = 0xff, },
+    color = { a = 255, b = 255, g = 255, r = 0, },
     font = "Neucha-Regular.ttf",
-    text = "This is cool!",
+    text = "Hello World",
     size = 20,
-    rect = { x = 10, y = 10, },
+    rect = { x = 16, y = 16, },
 })
 
 celerytest.gui_insert(0, text)

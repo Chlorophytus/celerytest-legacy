@@ -42,6 +42,8 @@ void gl::set_root_view(sim::session *session, glview::view2d *view) {
   root_view->parent = session;
 }
 glview::view2d *gl::get_root_view() { return root_view; }
+U16 gl::w() { return width; }
+U16 gl::h() { return height; }
 
 void gl::tick() {
   if (context_present) {

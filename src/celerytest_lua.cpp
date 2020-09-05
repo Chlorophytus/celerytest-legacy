@@ -85,18 +85,6 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     auto o_ptr = session.query_object(idx);
     auto d_ptr = dynamic_cast<glview::view2d *>(o_ptr);
 
-    if (lua_getfield(L, 2, "w") == LUA_TNUMBER) {
-      auto w = lua_tointeger(L, -1);
-      d_ptr->w = w;
-    }
-    lua_pop(L, 1);
-
-    if (lua_getfield(L, 2, "h") == LUA_TNUMBER) {
-      auto h = lua_tointeger(L, -1);
-      d_ptr->h = h;
-    }
-    lua_pop(L, 1);
-
     d_ptr->font_dir = std::filesystem::path{session.root / "lib" / "fonts"};
     d_ptr->post_create();
 
@@ -310,24 +298,6 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
 
   if (o_ptr != nullptr) {
     switch (o_ptr->get_type()) {
-    case sim::types::glview_view2d: {
-      auto opt = luaL_checkoption(L, 2, nullptr,
-                                  (const char *const[]){"w", "h", nullptr});
-      auto r_ptr = dynamic_cast<glview::view2d *>(o_ptr);
-      switch (opt) {
-      case 0: {
-        lua_pushinteger(L, r_ptr->w);
-        return 1;
-      }
-      case 1: {
-        lua_pushinteger(L, r_ptr->h);
-        return 1;
-      }
-      default: {
-        break;
-      }
-      }
-    }
     // NOTE: This is for a currently abstract-in-Lua, regular-in-C++ type.
     // Disabled in this build.
 #if 0

@@ -90,8 +90,7 @@ void con::log_cpuid() {
   __cpuid(0x80000000, cpuid_args[0], cpuid_args[1], cpuid_args[2],
           cpuid_args[3]);
   if (cpuid_args[0] < 0x80000004) {
-    throw std::runtime_error{
-        "Please use a genuine non-legacy Intel/AMD processor"};
+    throw std::runtime_error{"Please use a genuine non-legacy Intel/AMD CPU"};
   }
   auto procinfo = std::string{""};
   for (auto i = 0x80000002; i < 0x80000005; i++) {
@@ -103,16 +102,13 @@ void con::log_cpuid() {
       procinfo += static_cast<U8>((cpuid_args[j] & 0xFF000000) >> 0x18);
     }
   }
-  celerytest::con::log_all(celerytest::con::severity::informational,
-                           {"x86 ... CPU: ", procinfo});
-  celerytest::con::log_all(
-      celerytest::con::severity::informational,
-      {"x86 ... SSE4.x: ",
-       (celerytest::con::check_sse() ? "all present" : "NOT all present")});
-  celerytest::con::log_all(
-      celerytest::con::severity::informational,
-      {"x86 ... AVX2: ",
-       (celerytest::con::check_avx() ? "present" : "NOT present")});
+  con::log_all(con::severity::informational, {"x86 ... CPU: ", procinfo});
+  con::log_all(con::severity::informational,
+               {"x86 ... SSE4.x: ",
+                (con::check_sse() ? "all present" : "NOT all present")});
+  con::log_all(
+      con::severity::informational,
+      {"x86 ... AVX2: ", (con::check_avx() ? "present" : "NOT present")});
 }
 
 // === FILE LISTENERS =========================================================

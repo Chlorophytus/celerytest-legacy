@@ -19,8 +19,6 @@ namespace glview {
 struct view2d : sim::object {
   sim::session *parent{nullptr};
   std::vector<U64> ctrls_idx{};
-  U16 w;
-  U16 h;
   std::filesystem::path font_dir;
 
   sim::types get_type() const override { return sim::types::glview_view2d; }
