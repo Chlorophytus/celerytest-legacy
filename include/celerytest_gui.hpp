@@ -29,26 +29,45 @@ template <> struct introspect_type<gui::image_ctrl> {
 };
 } // namespace sim
 namespace gui {
-struct shader2d {
+enum class uniform_types : U8 {
+  float4,
+  int4,
+  uint4,
+};
+struct uniform {
+  uniform_types type;
+  union {
+    GLfloat f[4];
+    GLint i[4];
+    GLuint u[4];
+  } data;
+};
+struct filter2d {
   GLuint shader_program;
   GLuint shader_object;
+  GLuint textures[2]; // 0 = src, 1 = dst
+  std::map<U16, uniform> uniforms{}; // Uniforms start off at location 2
+
   std::string source;
 };
 struct ctrl : sim::object {
-  bool do_shade = false;
   bool dirty = false;
   SDL_Surface *surface;
-  SDL_Surface *shaded;
+  SDL_Surface *filtered;
   std::unique_ptr<SDL_Rect> rect{};
 
-  std::optional<shader2d> shader{std::nullopt};
+  std::optional<filter2d> filter{std::nullopt};
 
   sim::types get_type() const override { return sim::types::gui_ctrl; }
   const char *get_type_string() const override {
     return sim::introspect_type<ctrl>::value;
   }
 
-  virtual void on_paint() {}
+  void post_create() override;
+  virtual void on_paint(){};
+  void pre_destroy() override;
+
+  void do_filter();
   void blit_here(SDL_Surface *) const;
 };
 struct text_ctrl : ctrl {

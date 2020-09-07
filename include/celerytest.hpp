@@ -21,6 +21,7 @@
 #include <filesystem>
 #include <forward_list>
 #include <initializer_list>
+#include <map>
 #include <memory>
 #include <optional>
 #include <queue>
