@@ -5,7 +5,6 @@
 namespace celerytest {
 namespace gui {
 struct ctrl;
-struct shader2d;
 struct text_ctrl;
 struct image_ctrl;
 } // namespace gui
@@ -19,9 +18,6 @@ template <> struct is_object<gui::text_ctrl> {
 template <> struct is_object<gui::image_ctrl> {
   constexpr const static bool value = true;
 };
-template <> struct is_object<gui::shader2d> {
-  constexpr const static bool value = true;
-};
 template <> struct introspect_type<gui::ctrl> {
   constexpr const static char *value = "GuiCtrl";
 };
@@ -31,26 +27,18 @@ template <> struct introspect_type<gui::text_ctrl> {
 template <> struct introspect_type<gui::image_ctrl> {
   constexpr const static char *value = "GuiImageCtrl";
 };
-template <> struct introspect_type<gui::shader2d> {
-  constexpr const static char *value = "GuiShader2D";
-};
 } // namespace sim
 namespace gui {
-/* TODO: WIP Object, but I might overhaul the entire GUI system for a...
- * ...shader-based one*/
-struct shader2d : sim::object {
+struct shader2d {
   GLuint shader_program;
   GLuint shader_object;
   std::string source;
-
-  sim::types get_type() const override { return sim::types::gui_shader2d; }
-  const char *get_type_string() const override {
-    return sim::introspect_type<shader2d>::value;
-  }
 };
 struct ctrl : sim::object {
+  bool do_shade = false;
   bool dirty = false;
   SDL_Surface *surface;
+  SDL_Surface *shaded;
   std::unique_ptr<SDL_Rect> rect{};
 
   std::optional<shader2d> shader{std::nullopt};

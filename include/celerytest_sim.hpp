@@ -11,7 +11,6 @@ enum class types : U16 {
   gui_ctrl,
   gui_textctrl,
   gui_imagectrl,
-  gui_shader2d,
 };
 // OBJECTS
 struct object;
