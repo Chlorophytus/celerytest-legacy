@@ -17,8 +17,8 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
 [[maybe_unused]] int lua::log(lua_State *L) {
   auto severity =
       luaL_checkoption(L, 1, "inf",
-                       (const char *const[]){"emg", "alt", "crt", "err", "wrn",
-                                             "not", "inf", "deb", nullptr});
+                       std::vector<const char *>{"emg", "alt", "crt", "err", "wrn",
+                                             "not", "inf", "deb", nullptr}.data());
   auto message = luaL_checkstring(L, 2);
   switch (severity) {
   case 0: {
@@ -69,11 +69,10 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
 
   // Now create the object
   auto opt = luaL_checkoption(
-      L, 1, nullptr,
-      (const char *const[]){sim::introspect_type<sim::object>::value,
+      L, 1, nullptr, std::vector<const char *>{sim::introspect_type<sim::object>::value,
                             sim::introspect_type<glview::view2d>::value,
                             sim::introspect_type<gui::text_ctrl>::value,
-                            nullptr});
+                            nullptr}.data());
   switch (opt) {
   case 0: {
     auto idx = session.create_object<sim::object>();
@@ -147,7 +146,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
       auto concated = std::filesystem::path{font};
       auto path =
           std::filesystem::path{session.root / "lib" / "fonts" / concated};
-      con::log_all(con::severity::debug, {"load font ", path});
+      con::log_all(con::severity::debug, std::string{"load font "} + path.string());
 
       if (!std::filesystem::exists(path)) {
         lua_getglobal(L, "celerytest");
@@ -181,12 +180,9 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
 }
 
 [[maybe_unused]] int lua::create_glcontext(lua_State *L) {
-  auto title = std::string_view{luaL_checkstring(L, 1)};
-  auto w = luaL_checkinteger(L, 2);
-  auto h = luaL_checkinteger(L, 3);
   auto f = lua_toboolean(L, 4);
 
-  gl::create_context(title, w, h, f);
+  gl::create_context(std::string{luaL_checkstring(L, 1)}, static_cast<U16>(luaL_checkinteger(L, 2)), static_cast<U16>(luaL_checkinteger(L, 3)), !!f);
 
   return 0;
 }
@@ -340,7 +336,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     case sim::types::gui_textctrl: {
       auto opt = luaL_checkoption(
           L, 2, nullptr,
-          (const char *const[]){"rect", "text", "color", "font", nullptr});
+          std::vector<const char*>{"rect", "text", "color", "font", nullptr}.data());
       auto r_ptr = dynamic_cast<gui::text_ctrl *>(o_ptr);
       switch (opt) {
       case 0: {
@@ -372,7 +368,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
         return 1;
       }
       case 3: {
-        lua_pushstring(L, r_ptr->font_path.filename().c_str());
+        lua_pushstring(L, r_ptr->font_path.filename().string().c_str());
         return 1;
       }
       default: {
@@ -396,7 +392,7 @@ void lua::declare_function(lua_State *L, const char *key, lua_CFunction val) {
     case sim::types::gui_textctrl: {
       auto opt = luaL_checkoption(
           L, 2, nullptr,
-          (const char *const[]){"rect", "text", "color", nullptr});
+          std::vector<const char *>{"rect", "text", "color", nullptr}.data());
       auto r_ptr = dynamic_cast<gui::text_ctrl *>(o_ptr);
       switch (opt) {
       case 0: {

@@ -72,7 +72,7 @@ struct ctrl : sim::object {
 };
 struct text_ctrl : ctrl {
   std::string text;
-  SDL_Color color{.r = 0xFF, .g = 0x00, .b = 0xFF, .a = 0xFF};
+  SDL_Color color{};
 
   bool free_this = false;
   std::filesystem::path font_path;

@@ -69,7 +69,7 @@ struct session {
     static_assert(is_object<T>::value == true);
     auto b_offset = 0;
     con::log_all(con::severity::debug,
-                 {"creating a ", introspect_type<T>::value});
+                 std::string{"creating a "} + std::string{introspect_type<T>::value});
     for (auto &&b : buckets) {
       // Offset will start off with 0
       auto offset = 0;
@@ -96,8 +96,8 @@ struct session {
       }
 
       con::log_all(con::severity::debug,
-                   {"...at bucket ", std::to_string(b_offset), " offset ",
-                    std::to_string(offset)});
+                   std::string{"...at bucket "} + std::to_string(b_offset) + std::string{" offset "} +
+                    std::to_string(offset));
 
       // Set this on the bucket's switchboard
       b->switchboard.set(offset);

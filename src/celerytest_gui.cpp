@@ -28,7 +28,7 @@ void gui::ctrl::post_create() {
 
     char shader_log[4096]{0};
     glGetShaderInfoLog(filter->shader_object, 4096, nullptr, shader_log);
-    con::log_all(con::severity::debug, {"COMPILE:\n", shader_log});
+    con::log_all(con::severity::debug,  std::string{"COMPILE:\n"} + shader_log);
 
     filter->shader_program = glCreateProgram();
     glAttachShader(filter->shader_program, filter->shader_object);
@@ -37,7 +37,7 @@ void gui::ctrl::post_create() {
 
     char program_log[4096]{0};
     glGetProgramInfoLog(filter->shader_object, 4096, nullptr, program_log);
-    con::log_all(con::severity::debug, {"LINK:\n", program_log});
+    con::log_all(con::severity::debug,  std::string{"LINK:\n"} + program_log);
 
     delete[] src;
 
@@ -103,7 +103,7 @@ void gui::text_ctrl::post_create() {
   ctrl::post_create();
   con::log_all(con::severity::debug, {"post create guitextctrl"});
 
-  font = TTF_OpenFont(font_path.c_str(), font_size);
+  font = TTF_OpenFont(font_path.string().c_str(), font_size);
   dirty = true;
 }
 void gui::text_ctrl::on_paint() {

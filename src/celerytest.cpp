@@ -3,8 +3,9 @@
 #include "../include/celerytest_sim.hpp"
 
 int main(int argc, char **argv) {
+#ifndef WIN32
   __builtin_cpu_init();
-
+#endif
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
 
@@ -16,26 +17,28 @@ int main(int argc, char **argv) {
   celerytest::con::attach(console);
   celerytest::con::attach(out);
   celerytest::con::log_all(celerytest::con::severity::informational,
-                           {"celerytest ", celerytest_VSTRING_FULL});
-  celerytest::con::log_all(celerytest::con::severity::informational, {"path is '", root.c_str(), "'"});
+                           std::string{"celerytest "} + std::string{celerytest_VSTRING_FULL});
+  celerytest::con::log_all(celerytest::con::severity::informational,
+                           std::string{"path is '"} + root.string() +
+                               std::string{"'"});
   celerytest::con::log_all(
       celerytest::con::severity::informational,
-      {"configured with ",
-       std::to_string(celerytest::sim::bucket::objects_per_bucket),
-       " objects/bucket"});
+      std::string{"configured with "} +
+          std::to_string(celerytest::sim::bucket::objects_per_bucket) +
+          std::string{" objects/bucket"});
   celerytest::con::log_all(
       celerytest::con::severity::informational,
-      {"configured with ",
-       std::to_string(celerytest::sim::session::buckets_per_session),
-       " buckets/session"});
+      std::string{"configured with "} +
+          std::to_string(celerytest::sim::session::buckets_per_session) +
+          std::string{" buckets/session"});
 
   celerytest::con::log_all(
       celerytest::con::severity::informational,
-      {"configured with ",
-       std::to_string(celerytest::sim::bucket::objects_per_bucket *
-                      celerytest::sim::session::buckets_per_session),
-       " objects/session"});
-    celerytest::con::log_cpuid();
+      std::string{"configured with "} +
+          std::to_string(celerytest::sim::bucket::objects_per_bucket *
+                         celerytest::sim::session::buckets_per_session) +
+          std::string{" objects/session"});
+  celerytest::con::log_cpuid();
   try {
     auto session = new celerytest::sim::session{root, false};
 

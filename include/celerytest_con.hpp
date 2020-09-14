@@ -38,7 +38,7 @@ void log_cpuid();
 bool check_sse();
 bool check_avx();
 size_t attach(con::listener *);
-void log_all(severity &&, std::forward_list<std::string> &&);
+void log_all(severity &&, std::string &&);
 void detach(const size_t);
 void deinit();
 } // namespace con

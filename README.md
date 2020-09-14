@@ -25,6 +25,7 @@ However, you could definitely run Celerytest on a new computer. See below.
 ### ...how do I run this?
 - CMake 3.15.x required
 - SDL2 (Base / TTF / Image / Net)
+- vcpkg is useful, but not required
 - An OpenGL 4.6 runtime should be on your computer.
 
 ### ...why?

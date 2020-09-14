@@ -1,12 +1,15 @@
 #pragma once
-#define GLEW_STATIC
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include <cpuid.h>
-#include <lua5.3/lua.hpp>
+#include <lua.hpp>
+#ifdef WIN32
+#include <intrin.h>
+#else
 #include <x86intrin.h>
+#include <cpuid.h>
+#endif
 
 // RATIONALE: In case version retrieval is needed
 #include "celerytest_cfg.hpp"
@@ -27,6 +30,7 @@
 #include <queue>
 #include <string>
 #include <string_view>
+#include <sstream>
 #include <vector>
 
 using U8 = std::uint8_t;

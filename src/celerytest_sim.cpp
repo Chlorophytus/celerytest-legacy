@@ -48,14 +48,16 @@ bool sim::bucket::full() const { return switchboard.all(); }
   // `Celerytest` TABLE ABOVE
 
   if (headless) {
-    auto e = luaL_dofile(L, (root / "lua" / "init_server.lua").c_str());
+    auto e =
+        luaL_dofile(L, (root / "lua" / "init_server.lua").string().c_str());
     if (e) {
       con::log_all(con::severity::error,
                    {"`init_server.lua` failure: ", lua_tostring(L, -1)});
       lua_pop(L, 1);
     }
   } else {
-    auto e = luaL_dofile(L, (root / "lua" / "init_client.lua").c_str());
+    auto e =
+        luaL_dofile(L, (root / "lua" / "init_client.lua").string().c_str());
     if (e) {
       con::log_all(con::severity::error,
                    {"`init_client.lua` failure: ", lua_tostring(L, -1)});
@@ -71,9 +73,10 @@ sim::session::~session() {
 void sim::session::delete_object(size_t idx) {
   auto b_offset = idx / sim::bucket::objects_per_bucket;
   auto offset = idx % sim::bucket::objects_per_bucket;
-  con::log_all(con::severity::debug,
-               {"trying to delete object ", std::to_string(offset),
-                " at bucket ", std::to_string(b_offset)});
+  con::log_all(con::severity::debug, std::string{"trying to delete object "} +
+                                         std::to_string(offset) +
+                                         std::string{" at bucket "} +
+                                         std::to_string(b_offset));
   auto &&b = buckets.at(b_offset);
   if (b) {
     if (b->switchboard.test(offset)) {
@@ -89,9 +92,10 @@ void sim::session::tick() {
   do {
     ev = new SDL_Event;
     pending.emplace(
-        (sim::event){.data = std::unique_ptr<SDL_Event>{ev}, .time = sim_time});
-    con::log_all(con::severity::debug, {"event, please check queue (tick #",
-                                        std::to_string(sim_time), ")"});
+        sim::event{std::unique_ptr<SDL_Event>{ev}, sim_time});
+    con::log_all(con::severity::debug,
+                 std::string{"event, please check queue (tick #"} +
+                     std::to_string(sim_time) + std::string{")"});
   } while (SDL_PollEvent(ev));
   sim_time++;
 }

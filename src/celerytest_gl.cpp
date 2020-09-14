@@ -11,7 +11,7 @@ static SDL_GLContext sdl_gl_context;
 static U16 width;
 static U16 height;
 
-void gl::create_context(std::string_view &title, U16 &&w, U16 &&h, bool &&f) {
+void gl::create_context(std::string &&title, U16 &&w, U16 &&h, bool &&f) {
   if (context_present) {
     throw std::runtime_error{"only one celerytest GL context can be allocated"};
   }
